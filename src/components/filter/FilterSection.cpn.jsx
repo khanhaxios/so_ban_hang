@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   filterButtons: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#f3f3f3",
+    backgroundColor: "#ecf0f6",
     paddingVertical: 5,
     marginVertical: 10,
     borderRadius: 6,

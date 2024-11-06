@@ -1,13 +1,7 @@
 import React, { useState } from "react";
-import {
-  ScrollView,
-  Pressable,
-  Image,
-  TouchableOpacity,
-} from "react-native";
 import { observer } from "mobx-react";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { Center, HStack, Text, VStack } from "native-base";
+import { Center, HStack, Text, VStack, ScrollView, Pressable, Image, Button } from "native-base";
 import { AppContainer } from "../../components/layout/container.cpn";
 import icon from "../../res/icon.png";
 import FilterSection from "../../components/filter/FilterSection.cpn";
@@ -97,179 +91,113 @@ const AnalyticIndexScreen = ({ navigation, route }) => {
   const renderTransactionItem = (item) => (
     <VStack
       key={item.description}
-      style={{
-        flexDirection: "row",
-        justifyContent: "space-between",
-        padding: 16,
-        backgroundColor: "white",
-        borderBottomWidth: 1,
-        borderBottomColor: "#EAEAEA",
-      }}
+      flexDirection="row"
+      justifyContent="space-between"
+      p={4}
+      bg="white"
+      borderBottomWidth={1}
+      borderBottomColor="#EAEAEA"
     >
       <VStack flex={1}>
-        <Text style={{ fontWeight: "bold" }}>{item.type}</Text>
-        <Text style={{ color: "#666", fontSize: 12 }}>{item.description}</Text>
+        <Text fontWeight="bold">{item.type}</Text>
+        <Text color="#666" fontSize="xs">
+          {item.description}
+        </Text>
       </VStack>
       <VStack>
-        <Text
-          style={{
-            fontWeight: "bold",
-            fontSize: 16,
-            color: item.isExpense ? "#EB5757" : "#27AE60",
-          }}
-        >
+        <Text fontWeight="bold" fontSize="lg" color={item.isExpense ? "#EB5757" : "#27AE60"}>
           {item?.amount?.toLocaleString()}đ
         </Text>
-        <Text style={{ fontSize: 12, color: "#999" }}>{item.method}</Text>
+        <Text fontSize="xs" color="#999">
+          {item.method}
+        </Text>
       </VStack>
     </VStack>
   );
 
   return (
     <AppContainer>
-      <VStack
-        style={{
-          backgroundColor: "#17683d",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      {/* Header */}
+      <VStack bg="#17683d" flexDirection="row" alignItems="center" justifyContent="center">
         <HStack
-          width={"100%"}
+          width="100%"
           px={2}
           py={1}
-          style={{
-            backgroundColor: "transparent",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
+          justifyContent="space-between"
+          alignItems="center"
         >
-          <HStack justifyContent={"center"} alignItems={"center"} space={2}>
+          <HStack space={2} justifyContent="center" alignItems="center">
             <Pressable>
               <Center py={1}>
-                <Image source={icon} style={{ width: 50, height: 50 }} />
+                <Image source={icon} alt="icon" size={12} />
               </Center>
             </Pressable>
             <Pressable>
               <VStack>
-                <Text
-                  style={{ fontWeight: "semibold", fontSize: 16, color: "white" }}
-                >
+                <Text fontWeight="semibold" fontSize="md" color="white">
                   Dang Khanh
                 </Text>
-                <HStack
-                  space={1}
-                  alignItems={"center"}
-                  justifyContent={"center"}
-                >
-                  <Text
-                    style={{ fontWeight: "semibold", fontSize: 12, color: "white" }}
-                  >
+                <HStack space={1} alignItems="center" justifyContent="center">
+                  <Text fontWeight="semibold" fontSize="xs" color="white">
                     Thông tin cửa hàng
                   </Text>
-                  <Ionicons
-                    name={"chevron-forward"}
-                    color={"white"}
-                    size={12}
-                  />
+                  <Ionicons name="chevron-forward" color="white" size={12} />
                 </HStack>
               </VStack>
             </Pressable>
           </HStack>
-          <HStack space={4} alignItems={"center"} justifyContent={"center"}>
+          <HStack space={4} alignItems="center">
             <Pressable>
-              <Ionicons name={"search-outline"} color={"white"} size={24} />
+              <Ionicons name="search-outline" color="white" size={24} />
             </Pressable>
             <Pressable>
-              <Ionicons
-                name={"notifications-outline"}
-                color={"white"}
-                size={24}
-              />
+              <Ionicons name="notifications-outline" color="white" size={24} />
             </Pressable>
           </HStack>
         </HStack>
       </VStack>
 
-      <ScrollView style={{ flex: 1, backgroundColor: "#F5F5F5" }}>
-        {/* Filter Buttons */}
-        <VStack backgroundColor="white">
-          <VStack
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              paddingHorizontal: 8,
-            }}
-          >
+      {/* Content */}
+      <ScrollView flex={1} bg="#F5F5F5">
+        {/* Filter Section */}
+        <VStack bg="white">
+          <HStack justifyContent="space-between" px={2}>
             <FilterSection setFilteredData={setFilteredData} data={dataFake} />
-            <HStack space={4} alignItems={"center"} justifyContent={"center"}>
-              <Pressable>
-                <Ionicons name={"search-outline"} color={"black"} size={24} />
-              </Pressable>
-            </HStack>
-          </VStack>
+            <Pressable>
+              <Ionicons name="search-outline" color="black" size={24} />
+            </Pressable>
+          </HStack>
 
           {/* Summary Section */}
-          <VStack
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-around",
-              paddingVertical: 10,
-              backgroundColor: "white",
-            }}
-          >
-            <VStack
-              style={{
-                alignItems: "center",
-                backgroundColor: "#f3f3f3",
-                paddingVertical: 10,
-                paddingHorizontal: 10,
-                width: "45%",
-                borderRadius: 6,
-              }}
-            >
-              <Text style={{ fontSize: 14, color: "#666" }}>Tổng chi</Text>
-              <Text
-                style={{ fontSize: 18, fontWeight: "bold", color: "#EB5757" }}
-              >
+          <HStack justifyContent="space-around" py={2} bg="white">
+            <VStack alignItems="center" bg="#f3f3f3" p={4} width="45%" borderRadius="md">
+              <Text fontSize="sm" color="#666">
+                Tổng chi
+              </Text>
+              <Text fontSize="lg" fontWeight="bold" color="#EB5757">
                 {totalExpense.toLocaleString()}đ
               </Text>
             </VStack>
-            <VStack
-              style={{
-                alignItems: "center",
-                backgroundColor: "#f3f3f3",
-                paddingVertical: 10,
-                paddingHorizontal: 10,
-                width: "45%",
-                borderRadius: 6,
-              }}
-            >
-              <Text style={{ fontSize: 14, color: "#666" }}>Tổng thu</Text>
-              <Text
-                style={{ fontSize: 18, fontWeight: "bold", color: "#27AE60" }}
-              >
+            <VStack alignItems="center" bg="#f3f3f3" p={4} width="45%" borderRadius="md">
+              <Text fontSize="sm" color="#666">
+                Tổng thu
+              </Text>
+              <Text fontSize="lg" fontWeight="bold" color="#27AE60">
                 {totalIncome.toLocaleString()}đ
               </Text>
             </VStack>
-          </VStack>
+          </HStack>
         </VStack>
 
         {/* Transaction List */}
-        <VStack style={{ flex: 1, backgroundColor: "#F5F5F5" }}>
+        <VStack flex={1} bg="#F5F5F5">
           {Object.keys(groupedData).map((date, index) => (
             <VStack key={index}>
               {/* Date Section */}
-              <VStack
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  padding: 16,
-                  backgroundColor: "#F5F5F5",
-                }}
-              >
-                <Text style={{ fontWeight: "bold", color: "#666" }}>{date}</Text>
+              <VStack flexDirection="row" justifyContent="space-between" p={4} bg="#F5F5F5">
+                <Text fontWeight="bold" color="#666">
+                  {date}
+                </Text>
               </VStack>
               {/* Transactions under the date */}
               {groupedData[date].map((transaction) => renderTransactionItem(transaction))}
@@ -279,40 +207,18 @@ const AnalyticIndexScreen = ({ navigation, route }) => {
       </ScrollView>
 
       {/* Footer Buttons */}
-      <VStack
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          paddingVertical: 16,
-          backgroundColor: "white",
-          marginHorizontal: 8,
-        }}
-      >
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            paddingVertical: 12,
-            alignItems: "center",
-            borderRadius: 5,
-            backgroundColor: "#EB5757",
-            marginRight: 8,
-          }}
-        >
-          <Text style={{ color: "white", fontWeight: "bold" }}>Khoản chi</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            paddingVertical: 12,
-            alignItems: "center",
-            borderRadius: 5,
-            backgroundColor: "#27AE60",
-            marginLeft: 8,
-          }}
-        >
-          <Text style={{ color: "white", fontWeight: "bold" }}>Khoản thu</Text>
-        </TouchableOpacity>
-      </VStack>
+      <HStack justifyContent="space-around" py={4} bg="white" mx={2}>
+        <Button flex={1} py={3} bg="#EB5757" mr={2}>
+          <Text color="white" fontWeight="bold">
+            Khoản chi
+          </Text>
+        </Button>
+        <Button flex={1} py={3} bg="#27AE60" ml={2}>
+          <Text color="white" fontWeight="bold">
+            Khoản thu
+          </Text>
+        </Button>
+      </HStack>
     </AppContainer>
   );
 };
