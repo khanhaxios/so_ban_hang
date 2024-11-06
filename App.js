@@ -6,6 +6,8 @@ import {LoaderApp} from "./src/components/layout/loader.app";
 import {SQLiteProvider} from "expo-sqlite";
 import {appDatabaseService} from "./src/core/app.database";
 import {useLayoutEffect} from 'react'
+import {productService} from "./src/services/product.service";
+import {ProductModel} from "./src/models/product.model";
 
 export default function App() {
     LogBox.ignoreAllLogs(true);
@@ -19,7 +21,7 @@ export default function App() {
     useLayoutEffect(() => {
         initDatabase().then(async () => {
             setInitialState(false)
-        })
+        });
     }, []);
     return (
         <SQLiteProvider databaseName={appDatabaseService.DB_NAME}>
