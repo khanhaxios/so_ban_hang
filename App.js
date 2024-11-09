@@ -9,6 +9,11 @@ import {useLayoutEffect} from 'react'
 import {productService} from "./src/services/product.service";
 import {ProductModel} from "./src/models/product.model";
 
+import * as ScreenOrientation from 'expo-screen-orientation';
+
+
+
+
 export default function App() {
     LogBox.ignoreAllLogs(true);
     const [initialState, setInitialState] = useState(false)
@@ -23,6 +28,12 @@ export default function App() {
             setInitialState(false)
         });
     }, []);
+    async function changeScreenOrientation() {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT);
+      }
+    
+      changeScreenOrientation()
+      
     return (
         <SQLiteProvider databaseName={appDatabaseService.DB_NAME}>
             <NativeBaseProvider>

@@ -193,10 +193,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   activeFilterButton: {
-    backgroundColor: "#E5F3FF",
+    backgroundColor: "white",
   },
   activeFilterButtonText: {
-    color: "#2D9CDB",
+    color: "#17683d",
     fontWeight: "bold",
   },
 });

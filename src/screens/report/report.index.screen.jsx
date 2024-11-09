@@ -81,6 +81,7 @@ const ReportIndexScreen = ({ navigation, route }) => {
       <ScrollView>
         {/* Header */}
         <VStack space={2} px={4} py={2} bg="white">
+
           <HStack justifyContent="space-between" alignItems="center">
             <Button variant="ghost">
               <Ionicons
@@ -100,7 +101,7 @@ const ReportIndexScreen = ({ navigation, route }) => {
               />
             </Button>
           </HStack>
-          <HStack space={4} justifyContent="center">
+          <HStack space={4} justifyContent="space-between">
             <Button variant="ghost" onPress={() => handleTabChange("Bán hàng")}>
               <Text style={getTabStyle("Bán hàng")} fontSize={"sm"}>
                 Bán hàng
@@ -126,15 +127,13 @@ const ReportIndexScreen = ({ navigation, route }) => {
 
         {/* Date Filter */}
         <VStack>
-          <VStack
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              paddingHorizontal: 8,
-            }}
-          >
-            <FilterSection setFilteredData={setFilteredData} data={dataFake} />
-          </VStack>
+         
+                <HStack justifyContent="space-around">
+                <VStack width={"35%"}>
+                <FilterSection setFilteredData={setFilteredData} data={dataFake} />
+                  </VStack>
+                  </HStack>
+    
         </VStack>
 
         {/* Hiển thị các màn hình dựa trên tab được chọn */}

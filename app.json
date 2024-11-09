@@ -30,6 +30,19 @@
         "projectId": "13709fca-e18d-452f-aafd-848fdd498341"
       }
     },
-    "owner": "khanhdaica13122002"
+    "owner": "khanhdaica13122002",
+    "expo": {
+    "ios": {
+      "requireFullScreen": true
+    },
+    "plugins": [
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "DEFAULT"
+        }
+      ]
+    ]
+  }
   }
 }

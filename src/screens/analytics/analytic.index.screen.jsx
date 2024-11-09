@@ -1,61 +1,71 @@
 import React, { useState } from "react";
 import { observer } from "mobx-react";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { Center, HStack, Text, VStack, ScrollView, Pressable, Image, Button } from "native-base";
+import {
+  Center,
+  HStack,
+  Text,
+  VStack,
+  ScrollView,
+  Pressable,
+  Image,
+  Button,
+  Box,
+} from "native-base";
 import { AppContainer } from "../../components/layout/container.cpn";
 import icon from "../../res/icon.png";
 import FilterSection from "../../components/filter/FilterSection.cpn";
 
 const AnalyticIndexScreen = ({ navigation, route }) => {
   const [dataFake, setDataFake] = useState([
-    {
-      type: "Bán hàng",
-      description: "Sản phẩm A",
-      amount: 500000,
-      isExpense: false,
-      method: "Tiền mặt",
-      date: "06/11/2024",
-    },
-    {
-      type: "Mua hàng",
-      description: "Sản phẩm B",
-      amount: 300000,
-      isExpense: true,
-      method: "Chuyển khoản",
-      date: "05/11/2024",
-    },
-    {
-      type: "Bán hàng",
-      description: "Sản phẩm C",
-      amount: 215000,
-      isExpense: false,
-      method: "Ví điện tử",
-      date: "06/11/2024",
-    },
-    {
-      type: "Bán hàng",
-      description: "Sản phẩm A",
-      amount: 500000,
-      isExpense: false,
-      method: "Tiền mặt",
-      date: "06/11/2024",
-    },
-    {
-      type: "Mua hàng",
-      description: "Sản phẩm B",
-      amount: 300000,
-      isExpense: true,
-      method: "Chuyển khoản",
-      date: "05/11/2024",
-    },
-    {
-      type: "Bán hàng",
-      description: "Sản phẩm C",
-      amount: 215000,
-      isExpense: false,
-      method: "Ví điện tử",
-      date: "06/11/2024",
-    },
+    // {
+    //   type: "Bán hàng",
+    //   description: "Sản phẩm A",
+    //   amount: 500000,
+    //   isExpense: false,
+    //   method: "Tiền mặt",
+    //   date: "06/11/2024",
+    // },
+    // {
+    //   type: "Mua hàng",
+    //   description: "Sản phẩm B",
+    //   amount: 300000,
+    //   isExpense: true,
+    //   method: "Chuyển khoản",
+    //   date: "05/11/2024",
+    // },
+    // {
+    //   type: "Bán hàng",
+    //   description: "Sản phẩm C",
+    //   amount: 215000,
+    //   isExpense: false,
+    //   method: "Ví điện tử",
+    //   date: "06/11/2024",
+    // },
+    // {
+    //   type: "Bán hàng",
+    //   description: "Sản phẩm A",
+    //   amount: 500000,
+    //   isExpense: false,
+    //   method: "Tiền mặt",
+    //   date: "06/11/2024",
+    // },
+    // {
+    //   type: "Mua hàng",
+    //   description: "Sản phẩm B",
+    //   amount: 300000,
+    //   isExpense: true,
+    //   method: "Chuyển khoản",
+    //   date: "05/11/2024",
+    // },
+    // {
+    //   type: "Bán hàng",
+    //   description: "Sản phẩm C",
+    //   amount: 215000,
+    //   isExpense: false,
+    //   method: "Ví điện tử",
+    //   date: "06/11/2024",
+    // },
   ]);
   const [filteredData, setFilteredData] = useState(dataFake);
 
@@ -105,7 +115,11 @@ const AnalyticIndexScreen = ({ navigation, route }) => {
         </Text>
       </VStack>
       <VStack>
-        <Text fontWeight="bold" fontSize="lg" color={item.isExpense ? "#EB5757" : "#27AE60"}>
+        <Text
+          fontWeight="bold"
+          fontSize="lg"
+          color={item.isExpense ? "#EB5757" : "#27AE60"}
+        >
           {item?.amount?.toLocaleString()}đ
         </Text>
         <Text fontSize="xs" color="#999">
@@ -118,7 +132,12 @@ const AnalyticIndexScreen = ({ navigation, route }) => {
   return (
     <AppContainer>
       {/* Header */}
-      <VStack bg="#17683d" flexDirection="row" alignItems="center" justifyContent="center">
+      <VStack
+        bg="#17683d"
+        flexDirection="row"
+        alignItems="center"
+        justifyContent="center"
+      >
         <HStack
           width="100%"
           px={2}
@@ -161,16 +180,40 @@ const AnalyticIndexScreen = ({ navigation, route }) => {
       <ScrollView flex={1} bg="#F5F5F5">
         {/* Filter Section */}
         <VStack bg="white">
-          <HStack justifyContent="space-between" px={2}>
-            <FilterSection setFilteredData={setFilteredData} data={dataFake} />
-            <Pressable>
-              <Ionicons name="search-outline" color="black" size={24} />
-            </Pressable>
+          <HStack justifyContent="space-around">
+            <VStack width={"35%"}>
+              <HStack justifyContent="space-around" px={2}>
+                <FilterSection
+                  setFilteredData={setFilteredData}
+                  data={dataFake}
+                />
+                <HStack
+                  space={2}
+                  alignItems={"center"}
+                  justifyContent={"center"}
+                  px={3}
+                >
+                  <Pressable>
+                    <Ionicons name="search-outline" color="black" size={24} />
+                  </Pressable>
+                </HStack>
+              </HStack>
+            </VStack>
           </HStack>
+        </VStack>
 
+        {dataFake && dataFake.length > 0 ? (
+        <>
+        <VStack bg="white">
           {/* Summary Section */}
           <HStack justifyContent="space-around" py={2} bg="white">
-            <VStack alignItems="center" bg="#f3f3f3" p={4} width="45%" borderRadius="md">
+            <VStack
+              alignItems="center"
+              bg="#f3f3f3"
+              p={4}
+              width="45%"
+              borderRadius="md"
+            >
               <Text fontSize="sm" color="#666">
                 Tổng chi
               </Text>
@@ -178,7 +221,13 @@ const AnalyticIndexScreen = ({ navigation, route }) => {
                 {totalExpense.toLocaleString()}đ
               </Text>
             </VStack>
-            <VStack alignItems="center" bg="#f3f3f3" p={4} width="45%" borderRadius="md">
+            <VStack
+              alignItems="center"
+              bg="#f3f3f3"
+              p={4}
+              width="45%"
+              borderRadius="md"
+            >
               <Text fontSize="sm" color="#666">
                 Tổng thu
               </Text>
@@ -189,21 +238,46 @@ const AnalyticIndexScreen = ({ navigation, route }) => {
           </HStack>
         </VStack>
 
-        {/* Transaction List */}
+     
         <VStack flex={1} bg="#F5F5F5">
           {Object.keys(groupedData).map((date, index) => (
             <VStack key={index}>
               {/* Date Section */}
-              <VStack flexDirection="row" justifyContent="space-between" p={4} bg="#F5F5F5">
+              <VStack
+                flexDirection="row"
+                justifyContent="space-between"
+                p={4}
+                bg="#F5F5F5"
+              >
                 <Text fontWeight="bold" color="#666">
                   {date}
                 </Text>
               </VStack>
               {/* Transactions under the date */}
-              {groupedData[date].map((transaction) => renderTransactionItem(transaction))}
+              {groupedData[date].map((transaction) =>
+                renderTransactionItem(transaction)
+              )}
             </VStack>
           ))}
-        </VStack>
+        </VStack></>
+        ): 
+        <><VStack>
+          <Box
+              alignItems="center"
+           
+              p={4}
+              borderRadius="md"
+            >
+              <Image
+                source={require('../../../assets/bill.png')}
+                alt="bill icon"
+                size="2xl"
+              />
+              <Text color="#555" fontSize="md" mt={1}>
+                Thu chi dài dòng - ghi lại là xong!
+              </Text>
+            </Box>
+          </VStack></> }
       </ScrollView>
 
       {/* Footer Buttons */}
