@@ -38,6 +38,7 @@ export default function App() {
         <SQLiteProvider databaseName={appDatabaseService.DB_NAME}>
             <NativeBaseProvider>
                 {initialState && (<LoaderApp/>)}
+       
                 <MainRoutes/>
             </NativeBaseProvider>
         </SQLiteProvider>
