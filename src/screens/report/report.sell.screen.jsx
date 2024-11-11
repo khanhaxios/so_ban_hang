@@ -1,10 +1,43 @@
 import { Box, HStack, Image, Text, VStack } from "native-base";
 import { LineChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
+import { useEffect, useState } from "react";
+import FilterSection from "../../components/filter/FilterSection.cpn";
 
 const screenWidth = Dimensions.get("window").width;
 
-function ReportSellScreen({ stats }) {
+function ReportSellScreen() {
+  const [dataFake, setDataFake] = useState([
+    {
+      type: "Bán hàng",
+      description: "Sản phẩm A",
+      amount: 500000,
+      isExpense: false,
+      method: "Tiền mặt",
+      date: "06/11/2024",
+    },
+    {
+      type: "Mua hàng",
+      description: "Sản phẩm B",
+      amount: 300000,
+      isExpense: true,
+      method: "Chuyển khoản",
+      date: "05/11/2024",
+    },
+    {
+      type: "Bán hàng",
+      description: "Sản phẩm C",
+      amount: 215000,
+      isExpense: false,
+      method: "Ví điện tử",
+      date: "06/11/2024",
+    },
+  ]);
+
+ 
+
+  
+
   const chartData = {
     labels: ["0h", "4h", "8h", "12h", "16h", "20h"], // Giờ biểu đồ
     datasets: [
@@ -38,8 +71,42 @@ function ReportSellScreen({ stats }) {
     },
   };
 
+  const [stats, setStats] = useState({
+    revenue: 0,
+    orders: 0,
+    customers: 0,
+    avgOrder: 0,
+  });
+
+
+  const [filteredData, setFilteredData] = useState(dataFake);
+  useEffect(() => {
+    const sales = filteredData?.filter((item) => item.type === "Bán hàng");
+    const totalRevenue = sales?.reduce((acc, sale) => acc + sale.amount, 0);
+    const totalOrders = sales?.length;
+    const totalCustomers = totalOrders;
+    const avgOrder = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    setStats({
+      revenue: totalRevenue,
+      orders: totalOrders,
+      customers: totalCustomers,
+      avgOrder: avgOrder,
+    });
+    
+  }, [filteredData]);
+
   return (
     <VStack>
+        <VStack>
+          <HStack justifyContent="space-around">
+            <VStack width={"35%"}>
+              <FilterSection
+                setFilteredData={setFilteredData}
+                data={dataFake}
+              />
+            </VStack>
+          </HStack>
+        </VStack>
       <VStack
         space={2}
         px={4}

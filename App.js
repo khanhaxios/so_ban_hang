@@ -24,9 +24,9 @@ export default function App() {
         await appDatabaseService.createDatabase();
     }
     useLayoutEffect(() => {
-        initDatabase().then(async () => {
-            setInitialState(false)
-        });
+        // initDatabase().then(async () => {
+        //     setInitialState(false)
+        // });
     }, []);
     async function changeScreenOrientation() {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT);

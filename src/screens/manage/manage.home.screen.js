@@ -1,6 +1,6 @@
 import React from 'react'
 import { observer } from 'mobx-react'
-import { useWindowDimensions } from 'react-native'
+import { TouchableOpacity, useWindowDimensions } from 'react-native'
 import { AppContainer } from '../../components/layout/container.cpn'
 import {
   Box,
@@ -36,7 +36,7 @@ const ManageHomeScreen = ({ route, navigation }) => {
 
   return (
     <AppContainer>
-      <VStack flex={1} backgroundColor="#f3f3f3">
+      <VStack flex={1} backgroundColor="#f3f3f3" >
         <HomeHeaderOverlayCpn />
 
         <HomeHeaderCpn />
@@ -96,14 +96,18 @@ const ManageHomeScreen = ({ route, navigation }) => {
                 p={4}
                 borderRadius="md"
               >
-                <Image
-                  source={require('../../../assets/shop.png')}
-                  alt="shop icon"
-                  size="sm"
-                />
-                <Text color="#555" fontSize="sm" mt={1}>
-                  Bán hàng
-                </Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('manage_sell_screen')}
+                >
+                  <Image
+                    source={require('../../../assets/shop.png')}
+                    alt="shop icon"
+                    size="sm"
+                  />
+                  <Text color="#555" fontSize="sm" mt={1}>
+                    Bán hàng
+                  </Text>
+                </TouchableOpacity>
               </Box>
 
               <Box
@@ -153,7 +157,6 @@ const ManageHomeScreen = ({ route, navigation }) => {
                 <Text color="#555" fontSize="sm" mt={1}>
                   Thu chi
                 </Text>
-              
               </Box>
               <Box
                 alignItems="center"
@@ -170,7 +173,6 @@ const ManageHomeScreen = ({ route, navigation }) => {
                 <Text color="#555" fontSize="sm" mt={1}>
                   Tồn kho
                 </Text>
-              
               </Box>
             </HStack>
             {/* Advertisement Section */}
