@@ -6,40 +6,51 @@ import {
   ScrollView,
   HStack,
   Input,
-  Switch,
   Button,
   Modal,
 } from "native-base";
 import { observer } from "mobx-react";
 
 const CreateProductScreen = () => {
-  // Khởi tạo state
-  const [productName, setProductName] = useState("");
-  const [price, setPrice] = useState("");
-  const [categoryName, setCategoryName] = useState(""); // Tên danh mục
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false); // Trạng thái của modal
-  const [isProductValid, setIsProductValid] = useState(true);
-  const [isPriceValid, setIsPriceValid] = useState(true);
+  // State quản lý dữ liệu
+  const [formData, setFormData] = useState({
+    productName: "",
+    price: "",
+    originalPrice: "",
+    promoPrice: "",
+    promoCode: "",
+    categoryName: "",
+    isInStock: true, // Trạng thái còn hàng/hết hàng
+  });
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
+  const [categories, setCategories] = useState([]); // State cho danh sách danh mục
+
+  // Validation các trường
+  const validations = {
+    productName: formData.productName.trim() !== "",
+    price: formData.price.trim() !== "" && !isNaN(formData.price),
+    originalPrice:
+      formData.originalPrice.trim() !== "" && !isNaN(formData.originalPrice),
+    promoPrice:
+      formData.promoPrice.trim() !== "" && !isNaN(formData.promoPrice),
+    promoCode: formData.promoCode.trim() !== "",
+  };
+
+  const handleInputChange = (key, value) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleComplete = () => {
-    // Khi bấm "Hoàn tất", tiến hành kiểm tra tính hợp lệ
     setIsSubmitAttempted(true);
 
-    const isValidProductName = productName.trim() !== "";
-    const isValidPrice = price.trim() !== "";
-    setIsProductValid(isValidProductName);
-    setIsPriceValid(isValidPrice);
-
-    if (isValidProductName && isValidPrice) {
-      // Log tất cả dữ liệu dưới dạng object
+    const isValid = Object.values(validations).every(Boolean);
+    if (isValid) {
       console.log({
-        productName,
-        price,
-        categoryName,
+        ...formData,
       });
     } else {
-      console.log("Please fill in all required fields");
+      console.log("Vui lòng điền đầy đủ thông tin hợp lệ.");
     }
   };
 
@@ -63,122 +74,138 @@ const CreateProductScreen = () => {
         <Text fontSize="md">Tên sản phẩm *</Text>
         <Input
           placeholder="Ví dụ: Mì Hảo Hảo"
-          borderWidth={1}
-          borderColor={
-            isSubmitAttempted && !isProductValid ? "red.500" : "gray.400"
-          }
           mt={2}
-          value={productName}
-          onChangeText={setProductName}
+          value={formData.productName}
+          onChangeText={(text) => handleInputChange("productName", text)}
+          borderColor={
+            isSubmitAttempted && !validations.productName
+              ? "red.500"
+              : "gray.400"
+          }
         />
-        {isSubmitAttempted && !isProductValid && (
+        {isSubmitAttempted && !validations.productName && (
           <Text color="red.500" mt={1}>
             Thông tin bắt buộc
           </Text>
         )}
+      </Box>
 
-        {/* Price Input */}
-        <Text mt={4} fontSize="md">
-          Giá bán *
-        </Text>
+      {/* Price Inputs */}
+      {["price", "originalPrice", "promoPrice"].map((field, index) => (
+        <Box bg="white" px={4} py={4} mt={3} key={index}>
+          <Text fontSize="md">
+            {field === "price"
+              ? "Giá bán *"
+              : field === "originalPrice"
+              ? "Giá vốn *"
+              : "Giá khuyến mãi *"}
+          </Text>
+          <Input
+            placeholder="0.000"
+            keyboardType="numeric"
+            mt={2}
+            value={formData[field]}
+            onChangeText={(text) => handleInputChange(field, text)}
+            borderColor={
+              isSubmitAttempted && !validations[field] ? "red.500" : "gray.400"
+            }
+          />
+          {isSubmitAttempted && !validations[field] && (
+            <Text color="red.500" mt={1}>
+              Thông tin bắt buộc
+            </Text>
+          )}
+        </Box>
+      ))}
+
+      {/* Promo Code */}
+      <Box bg="white" px={4} py={4} mt={3}>
+        <Text fontSize="md">Mã khuyến mãi *</Text>
         <Input
-          placeholder="0.000"
-          keyboardType="numeric"
+          placeholder="Nhập mã"
           mt={2}
-          value={price}
-          onChangeText={setPrice}
-          borderWidth={1}
+          value={formData.promoCode}
+          onChangeText={(text) => handleInputChange("promoCode", text)}
           borderColor={
-            isSubmitAttempted && !isPriceValid ? "red.500" : "gray.400"
+            isSubmitAttempted && !validations.promoCode ? "red.500" : "gray.400"
           }
         />
-        {isSubmitAttempted && !isPriceValid && (
+        {isSubmitAttempted && !validations.promoCode && (
           <Text color="red.500" mt={1}>
             Thông tin bắt buộc
           </Text>
         )}
       </Box>
 
-      {/* Category Selection */}
+      {/* Stock Status */}
       <Box bg="white" px={4} py={4} mt={3}>
-        <Text fontSize="md">Danh mục</Text>
-        <Pressable mt={2} flexDirection="row" alignItems="center">
-          <Box
-            borderWidth={1}
-            borderColor="gray.400"
-            borderRadius={4}
-            px={4}
-            py={2}
-            onPress={() => setIsCategoryModalOpen(true)}
-          >
-            <Text color="blue.500">+ Tạo danh mục</Text>
+        <HStack justifyContent="space-between" alignItems="center">
+          <Box>
+            <Text fontSize="md">Trạng thái hàng</Text>
           </Box>
-          {categoryName && categoryName !=='' ? <Box
-            mx={2}
-            borderWidth={1}
-            borderColor="gray.400"
-            borderRadius={4}
-            px={4}
-            py={2}
-          >
-             <Text fontSize="md" color="blue.600">
-                {categoryName}
-              </Text>
-          </Box>
-          : null}
-        </Pressable>
-      </Box>
-
-      {/* Inventory Management */}
-      <Box bg="white" px={4} py={4} mt={3}>
-        <Text fontSize="md" mb={2}>
-          Quản lý tồn kho
-        </Text>
-        {/* Product Status */}
-        <HStack justifyContent="space-between" alignItems="center" mt={2}>
-          <Text>Tình trạng sản phẩm</Text>
-          <HStack>
-            <Button variant="outline" colorScheme="green" mr={2}>
-              Còn hàng
+          <HStack space={2}>
+            <Button
+              size="sm"
+              colorScheme="green"
+              variant="outline"
+              onPress={() => handleInputChange("isInStock", true)}
+            >
+              Đặt là Còn hàng
             </Button>
-            <Button variant="outline" colorScheme="gray">
-              Hết hàng
+            <Button
+              size="sm"
+              colorScheme="red"
+              variant="outline"
+              onPress={() => handleInputChange("isInStock", false)}
+            >
+              Đặt là Hết hàng
             </Button>
           </HStack>
         </HStack>
-        {/* SKU */}
-        <Text mt={4}>Mã SKU</Text>
-        <Input placeholder="Nhập/Quét" mt={2} />
-        {/* Track Inventory Switch */}
-        <HStack alignItems="center" justifyContent="space-between" mt={4}>
-          <Text>Theo dõi số lượng tồn kho</Text>
-          <Switch />
+        <HStack mt={2} alignItems="center" justifyContent="space-between">
+          <Text>{formData.isInStock ? "Còn hàng" : "Hết hàng"}</Text>
         </HStack>
       </Box>
 
-      {/* Additional Information */}
+      {/* Category Selection and List */}
       <Box bg="white" px={4} py={4} mt={3}>
-        <Text fontSize="md" mb={2}>
-          Hiển thị sản phẩm trên Website
-        </Text>
-        <Switch />
-        <HStack mt={4} space={3}>
-          <Button variant="outline" colorScheme="gray">
-            Phân loại
+        <Text fontSize="md" mb={3}>Danh mục</Text>
+        <HStack space={4} alignItems="center">
+          {/* Button to Open Modal */}
+          <Button
+            size="sm"
+            colorScheme="blue"
+            onPress={() => setIsCategoryModalOpen(true)}
+          >
+            + Thêm danh mục
           </Button>
-          <Button variant="outline" colorScheme="gray">
-            Mã vạch sản xuất
-          </Button>
-          <Button variant="outline" colorScheme="gray">
-            Khuyến mãi
-          </Button>
-          <Button variant="outline" colorScheme="gray">
-            Bán kèm
-          </Button>
+
+          {/* List of Categories */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <HStack space={2}>
+              {categories.length > 0 ? (
+                categories.map((category, index) => (
+                  <Box
+                    key={index}
+                    borderWidth={1}
+                    borderColor="gray.400"
+                    borderRadius={4}
+                    px={3}
+                    py={2}
+                    bg="gray.100"
+                  >
+                    <Text>{category}</Text>
+                  </Box>
+                ))
+              ) : (
+                <Text color="gray.500">Chưa có danh mục nào</Text>
+              )}
+            </HStack>
+          </ScrollView>
         </HStack>
       </Box>
 
-      {/* Bottom Buttons */}
+      {/* Buttons */}
       <HStack mt={6} px={4} space={3} justifyContent="space-between">
         <Button flex={1} colorScheme="gray">
           Tạo thêm
@@ -199,17 +226,24 @@ const CreateProductScreen = () => {
           <Modal.Body>
             <Input
               placeholder="Tên danh mục"
-              value={categoryName}
-              onChangeText={setCategoryName}
+              value={formData.categoryName}
+              onChangeText={(text) => handleInputChange("categoryName", text)}
             />
           </Modal.Body>
           <Modal.Footer>
             <Button
               onPress={() => {
-                setIsCategoryModalOpen(false);
+                if (formData.categoryName.trim() !== "") {
+                  setCategories((prev) => [
+                    ...prev,
+                    formData.categoryName.trim(),
+                  ]);
+                  setFormData({ ...formData, categoryName: "" });
+                  setIsCategoryModalOpen(false);
+                }
               }}
             >
-              Lưu
+              Thêm danh mục
             </Button>
           </Modal.Footer>
         </Modal.Content>

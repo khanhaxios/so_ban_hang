@@ -178,7 +178,8 @@ const CreateOrderScreen = ({ route, navigation }) => {
                 Bạn chưa có sản phẩm nào. Thêm sản phẩm để lên hóa đơn cho khách
                 hàng nhé
               </Text>
-              <Button mt={4} colorScheme="green" px={8} width="full">
+              <Button mt={4} colorScheme="green" px={8} width="full" 
+                onPress={() => navigation.navigate("manage_createoder_screen")}>
                 Thêm sản phẩm
               </Button>
             </Box>

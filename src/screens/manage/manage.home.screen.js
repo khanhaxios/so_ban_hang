@@ -117,14 +117,20 @@ const ManageHomeScreen = ({ route, navigation }) => {
                 p={4}
                 borderRadius="md"
               >
-                <Image
-                  source={require('../../../assets/box.png')}
-                  alt="box icon"
-                  size="sm"
-                />
-                <Text color="#555" fontSize="sm" mt={1}>
-                  Sản phẩm
-                </Text>
+                 <TouchableOpacity
+                  onPress={() => navigation.navigate('manager_product_screen')}
+                >
+                  <Image
+                source={require('../../../assets/box.png')}
+                alt="box icon"
+                size="sm"
+              />
+              <Text color="#555" fontSize="sm" mt={1}>
+                Sản phẩm
+              </Text>
+
+                </TouchableOpacity>
+                
               </Box>
               <Box
                 alignItems="center"
@@ -133,7 +139,10 @@ const ManageHomeScreen = ({ route, navigation }) => {
                 p={4}
                 borderRadius="md"
               >
-                <Image
+                  <TouchableOpacity
+                  onPress={() => navigation.navigate('manager_client_screen')}
+                >
+                   <Image
                   source={require('../../../assets/user.png')}
                   alt="user icon"
                   size="sm"
@@ -141,6 +150,8 @@ const ManageHomeScreen = ({ route, navigation }) => {
                 <Text color="#555" fontSize="sm" mt={1}>
                   Khách hàng
                 </Text>
+                </TouchableOpacity>
+               
               </Box>
               <Box
                 alignItems="center"
