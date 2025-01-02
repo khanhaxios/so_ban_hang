@@ -12,7 +12,6 @@ const MainRoutes = () => {
             <Tab.Navigator
                 screenOptions={{
                     tabBarHideOnKeyboard: true,
-                    tabBarStyle: {height: 50, paddingVertical: 6},
                     headerShown: false,
                     tabBarActiveTintColor: '#008528',
                 }}
@@ -20,6 +19,7 @@ const MainRoutes = () => {
                 {MAIN_TAB.map((navItem, index) => {
                     return (
                         <Tab.Screen
+                            key={index.toString()}
                             name={navItem.routeName}
                             component={navItem.component}
                             options={{

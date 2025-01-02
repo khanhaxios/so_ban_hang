@@ -2,13 +2,15 @@ import {appDatabaseService} from "../core/app.database";
 
 class CategoryService {
 
-    async getAllCategories(page = 1, size = 20) {
-        const db = appDatabaseService.getConnection();
+    async getAllCategories(db, page = 1, size = 20) {
         return await appDatabaseService.getAll(db, `SELECT * FROM ${appDatabaseService.TABLE_CATEGORY} LIMIT ${size} OFFSET ${(page - 1) * size}`);
     }
 
-    async insertCategory(category) {
-        const db = await appDatabaseService.getConnection();
+    async getAllCategory(db) {
+        return await appDatabaseService.getAll(db, `SELECT * FROM ${appDatabaseService.TABLE_CATEGORY}`);
+    }
+
+    async insertCategory(db, category) {
         const statement = await appDatabaseService.createInsertStatement(db, appDatabaseService.TABLE_CATEGORY, category);
         try {
             const result = await statement.executeAsync(appDatabaseService.createInsertStatementArgs(category));
@@ -19,8 +21,7 @@ class CategoryService {
         return false;
     }
 
-    async updateCategory(category, id) {
-        const db = await appDatabaseService.getConnection();
+    async updateCategory(db, category, id) {
         const statement = await appDatabaseService.createUpdateQuery(db, appDatabaseService.TABLE_CATEGORY, category, id);
         try {
             const result = await db.runAsync(statement, appDatabaseService.createInsertStatementArgs(category));
@@ -31,8 +32,7 @@ class CategoryService {
         return false;
     }
 
-    async deleteCategory(id) {
-        const db = await appDatabaseService.getConnection();
+    async deleteCategory(db, id) {
         const statement = await appDatabaseService.createUpdateQuery(db, appDatabaseService.TABLE_CATEGORY, id);
         try {
             const result = await db.runAsync(statement);
@@ -43,8 +43,7 @@ class CategoryService {
         return false;
     }
 
-    async getById(id) {
-        const db = await appDatabaseService.getConnection();
+    async getById(db, id) {
         const statement = await appDatabaseService.createGetByIdQuery(appDatabaseService.TABLE_CATEGORY, id);
         try {
             return await appDatabaseService.getFirst(db, statement);
@@ -52,6 +51,11 @@ class CategoryService {
             await statement.finalizeAsync();
         }
         return null;
+    }
+
+    async exitsByName(db, name) {
+        const statement = await appDatabaseService.createGetByQuery(appDatabaseService.TABLE_CATEGORY, 'categoryName', name);
+        return (await appDatabaseService.getFirst(db, statement)) != null;
     }
 }
 

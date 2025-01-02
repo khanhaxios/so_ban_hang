@@ -1,177 +1,151 @@
-import React, { useState } from "react";
+import React, {memo, useState, useMemo, useRef, useLayoutEffect, useCallback} from "react";
 import {
-  VStack,
-  Box,
-  Button,
-  ScrollView,
-  HStack,
-  Input,
-  Text,
-  Pressable,
+    VStack,
+    Button,
+    HStack,
+    Input,
+    Text,
 } from "native-base";
-
-import { observer } from "mobx-react";
-import ProductList from "../../models/productList.model";
-import InventoryList from "../../models/InventoryList.model";
-
+import {observer} from "mobx-react";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import {AppContainer} from "../../components/layout/container.cpn";
+import {Alert, Pressable, StyleSheet, ToastAndroid} from "react-native";
+import {ProductListTabHead} from "./product.list.tab.head";
+import Animated, {useAnimatedStyle, useSharedValue, withTiming} from "react-native-reanimated";
+import {SH, SW} from "../../ultis/helper";
+import {RenderListProduct} from "./render.list.product";
+import ProductList from "../../models/productList.model";
+import PagerView from 'react-native-pager-view';
+import {product} from "../../models/product.model";
+import {useFocusEffect} from "@react-navigation/native";
+import {productService} from "../../services/product.service";
+import ProductFromCategory from "./product.from.category";
 
 const productData = [
-  { id: "SP0001", name: "Sản phẩm A", totalQuantity: 20, soldQuantity: 5 },
-  { id: "SP0002", name: "Sản phẩm B", totalQuantity: 15, soldQuantity: 15 },
-  { id: "SP0003", name: "Sản phẩm C", totalQuantity: 30, soldQuantity: 10 },
-  { id: "SP0004", name: "Sản phẩm D", totalQuantity: 10, soldQuantity: 7 },
+    {id: "SP0001", name: "Sản phẩm A", totalQuantity: 20, soldQuantity: 5},
+    {id: "SP0002", name: "Sản phẩm B", totalQuantity: 15, soldQuantity: 15},
+    {id: "SP0003", name: "Sản phẩm C", totalQuantity: 30, soldQuantity: 10},
+    {id: "SP0003", name: "Sản phẩm C", totalQuantity: 30, soldQuantity: 10},
+    {id: "SP0003", name: "Sản phẩm C", totalQuantity: 30, soldQuantity: 10},
+    {id: "SP0003", name: "Sản phẩm C", totalQuantity: 30, soldQuantity: 10},
+    {id: "SP0003", name: "Sản phẩm C", totalQuantity: 30, soldQuantity: 10},
 ];
+export const TAB_LIST = {
+    PRODUCTS: {id: 0, title: "Sản Phẩm"},
+    INVENTORY: {id: 1, title: "Tồn Kho"},
+    CATEGORIES: {id: 2, title: "Danh mục"}
+}
+export const TabListItem = memo(({item, activeTab, setActiveTab}) => (
+    <Pressable
+        style={{
+            paddingVertical: 6,
+            paddingHorizontal: 12,
+            borderRadius: 6,
+            backgroundColor: activeTab === item.id ? 'rgba(2, 222, 16,.1)' : 'white'
+        }}
+        onPress={() => {
+            setActiveTab(item.id);
+        }}>
+        <Text
+            fontSize="lg"
+            color={activeTab === item.id ? "green.500" : "gray.500"}
+            fontWeight="bold">
+            {item?.title}
+        </Text>
+    </Pressable>
+));
+const ProductListScreen = ({route, navigation}) => {
+    const [activeTab, setActiveTab] = useState(TAB_LIST.PRODUCTS.id);
+    const [searchText, setSearchText] = useState("");
+    const pagerRef = useRef();
 
-const ProductListScreen = ({ route, navigation }) => {
-  const [activeTab, setActiveTab] = useState("products"); // 'products' hoặc 'inventory'
-  const [searchText, setSearchText] = useState(""); // Dùng để lọc sản phẩm (nếu cần)
+    const handleSetSelling = async (productId, selling) => {
+        await product.syncProductSelling(productId, selling);
+        await product.loadAll();
+        ToastAndroid.show(selling == 1 ? "Đã lên kệ" : 'Đã chuyển vào kho', ToastAndroid.LONG);
+    }
+    useLayoutEffect(() => {
+        product.loadAll().then();
+    }, []);
+    const handleOpenEditModal = (id) => {
+        navigation.navigate('product_edit_screen', {id})
+    }
+    const handleDeleteProduct = async (id) => {
+        Alert.alert("Xác nhận", "Bạn có chắc muốn xóa sản phẩm này?", [
+            {
+                style: 'default', text: 'Không', onPress: () => {
+                }
+            },
+            {
+                style: 'cancel', text: 'Xóa', onPress: async () => {
+                    await productService.deleteProduct(id);
+                    await product.loadAll();
+                    ToastAndroid.show("Đã xóa", ToastAndroid.LONG);
+                }
+            }
+        ])
+    }
+    useFocusEffect(useCallback(() => {
+        product.loadAll().then();
+    }, []));
+    useLayoutEffect(() => {
+        product.searchProduct(searchText).then();
+    }, [searchText])
 
-  return (
-    <VStack flex={1} backgroundColor="#f3f3f3">
-      {/* Thanh chọn tab */}
-      <HStack alignItems="center" space={2} px={4} py={2} bg="white" shadow={1}>
-        <Input
-          flex={1}
-          placeholder="Tìm tên, mã SKU, ..."
-          value={searchText}
-          onChangeText={(text) => setSearchText(text)}
-          variant="filled"
-          bg="gray.100"
-          borderRadius="md"
-          InputLeftElement={
-            <MaterialIcons
-              name="search"
-              size={20}
-              color="gray"
-              style={{ marginLeft: 8 }}
-            />
-          }
-        />
-        <MaterialIcons name="sort" size={24} color="gray" />
-        <MaterialIcons name="list" size={24} color="gray" />
-      </HStack>
-
-      <HStack bg="white" py={2} px={4} shadow={1}>
-        <Box
-          flex={1}
-          alignItems="center"
-        >
-          <Button
-            bg="white"
-            _active={{ bg: "transparent" }}
-            _hover={{ bg: "transparent" }}
-            _focus={{ boxShadow: "none" }}
-            onPress={() => setActiveTab("products")}
-            variant="outline"
-            borderColor={0}
-          >
-            <Text
-              fontSize="md"
-              color={activeTab === "products" ? "green.500" : "gray.500"}
-              fontWeight="bold"
-            >
-              Sản phẩm
-            </Text>
-          </Button>
-        </Box>
-        <Box
-          flex={1}
-          alignItems="center"
-        >
-          <Button
-            bg="white"
-            _active={{ bg: "transparent" }}
-            _hover={{ bg: "transparent" }}
-            _focus={{ boxShadow: "none" }}
-            onPress={() => setActiveTab("inventory")}
-            variant="outline"
-            borderColor={0}
-          >
-            <Text
-              fontSize="md"
-              color={activeTab === "inventory" ? "green.500" : "gray.500"}
-              fontWeight="bold"
-            >
-              Tồn kho
-            </Text>
-          </Button>
-        </Box>
-        <Box
-          flex={1}
-          alignItems="center"
-        >
-
-<Button
-            bg="white"
-            _active={{ bg: "transparent" }}
-            _hover={{ bg: "transparent" }}
-            onPress={() => setActiveTab("upsell")}
-            _focus={{ boxShadow: "none" }}
-            variant="outline"
-            borderColor={0}
-          >
-            <Text
-              fontSize="md"
-              color={activeTab === "upsell" ? "green.500" : "gray.500"}
-              fontWeight="bold"
-            >
-              Bán kèm
-            </Text>
-          </Button>
-         
-        </Box>
-        <Box
-          flex={1}
-          alignItems="center"
-        >
-            <Button
-            bg="white"
-            _active={{ bg: "transparent" }}
-            _hover={{ bg: "transparent" }}
-            _focus={{ boxShadow: "none" }}
-            variant="outline"
-            onPress={() => setActiveTab("categories")}
-            borderColor={0}
-          >
-            <Text
-              fontSize="md"
-              color={activeTab === "categories" ? "green.500" : "gray.500"}
-              fontWeight="bold"
-            >
-             Danh mục
-            </Text>
-          </Button>
-         
-        </Box>
-      </HStack>
-
-      {/* Hiển thị nội dung theo tab */}
-      <ScrollView flex={1} px={4} py={2}>
-        {activeTab === "products" ? (
-          <ProductList data={productData} />
-        ) : (
-          <InventoryList data={productData} />
-        )}
-      </ScrollView>
-
-
-      <Button
-        position="absolute"
-        bottom={4}
-        right={4}
-        bg="blue.500"
-        borderRadius="full"
-        size={12}
-        alignItems="center"
-        justifyContent="center"
-        
-        onPress={() => navigation.navigate("manage_createoder_screen")}
-      >
-        <MaterialIcons name="add" size={24} color="white" />
-      </Button>
-    </VStack>
-  );
+    return (
+        <AppContainer>
+            <VStack flex={1} backgroundColor="#f3f3f3">
+                <HStack alignItems="center" space={2} px={4} py={2} bg="white" shadow={1}>
+                    <Input
+                        flex={1}
+                        placeholder="Tìm tên, mã SKU, ..."
+                        value={searchText}
+                        onChangeText={(text) => setSearchText(text)}
+                        variant="filled"
+                        bg="gray.100"
+                        borderRadius="md"
+                        InputLeftElement={
+                            <MaterialIcons
+                                name="search"
+                                size={20}
+                                color="gray"
+                                style={{marginLeft: 8}}
+                            />
+                        }
+                    />
+                </HStack>
+                <ProductListTabHead activeTab={activeTab} setActiveTab={setActiveTab}/>
+                <PagerView ref={pagerRef} onPageSelected={(e) => {
+                    const {position} = e.nativeEvent;
+                    setActiveTab(position)
+                }} style={{width: '100%', height: '80%'}} initialPage={0}>
+                    <ProductList handleDelete={handleDeleteProduct} handleSetSelling={handleSetSelling}
+                                 loading={product.loading} data={product.searchResultByProduct}
+                                 emptyTitle={"Hiện không có sản phẩm nào lên kệ"}
+                                 setOpenEditModel={handleOpenEditModal}/>
+                    <ProductList handleDelete={handleDeleteProduct} handleSetSelling={handleSetSelling}
+                                 loading={product.loading}
+                                 emptyTitle={"Hiện không có sản phẩm nào trong kho"}
+                                 data={product.searchResultByInStorageProduct}
+                                 setOpen setOpenEditModel={handleOpenEditModal}/>
+                    <ProductFromCategory handleDelete={handleDeleteProduct} handleIsSelling={handleSetSelling}
+                                         handleEdit={handleOpenEditModal}/>
+                </PagerView>
+                <Button
+                    position="absolute"
+                    bottom={4}
+                    right={4}
+                    bg="blue.500"
+                    borderRadius="full"
+                    size={12}
+                    alignItems="center"
+                    justifyContent="center"
+                    onPress={() => navigation.navigate("manage_createoder_screen")}>
+                    <MaterialIcons name="add" size={24} color="white"/>
+                </Button>
+            </VStack>
+        </AppContainer>
+    );
 };
 
 export default observer(ProductListScreen);

@@ -1,8 +1,7 @@
 import {appDatabaseService} from "../core/app.database";
 
 class StoreService {
-    async getAllStore(page = 1, size = 20) {
-        const db = appDatabaseService.getConnection();
+    async getAllStore(db, page = 1, size = 20) {
         return await appDatabaseService.getAll(db, `SELECT * FROM ${appDatabaseService.TABLE_STORE} LIMIT ${size} OFFSET ${(page - 1) * size}`);
     }
 

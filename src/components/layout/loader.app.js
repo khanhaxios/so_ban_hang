@@ -1,5 +1,4 @@
 import {StyleSheet, View, Image, ActivityIndicator} from "react-native";
-import {SH, SW} from "../../ultis/helper";
 import loader from '../../res/img.png'
 
 export const LoaderApp = () => {
@@ -12,8 +11,8 @@ export const LoaderApp = () => {
 }
 const styles = StyleSheet.create({
     container: {
-        width: SW,
-        height: SH,
+        width: "100%",
+        height: "100%",
         backgroundColor: 'white',
         position: 'absolute',
         zIndex: 10,

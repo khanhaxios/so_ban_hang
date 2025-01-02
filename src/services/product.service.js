@@ -1,4 +1,5 @@
 import {appDatabaseService} from "../core/app.database";
+
 class ProductService {
     async getAllProduct(page = 1, size = 20) {
         const db = await appDatabaseService.getConnection();
@@ -6,8 +7,7 @@ class ProductService {
         return await appDatabaseService.getAll(db, query);
     }
 
-    async insertProduct(product) {
-        const db = await appDatabaseService.getConnection();
+    async insertProduct(db, product) {
         const statement = await appDatabaseService.createInsertStatement(db, appDatabaseService.TABLE_PRODUCT, product);
         try {
             const result = await statement.executeAsync(appDatabaseService.createInsertStatementArgs(product));
@@ -30,7 +30,8 @@ class ProductService {
         const statement = await appDatabaseService.createGetByIdQuery(appDatabaseService.TABLE_PRODUCT, id);
         try {
             return await appDatabaseService.getFirst(db, statement);
-        } finally {
+        } catch (e) {
+            console.log(e)
             await statement.finalizeAsync();
         }
         return null;
@@ -39,13 +40,14 @@ class ProductService {
     async updateProduct(id, updateData) {
         const db = await appDatabaseService.getConnection();
         const statement = await appDatabaseService.createUpdateQuery(db, appDatabaseService.TABLE_PRODUCT, updateData, id);
+        console.log(statement)
         try {
             const result = await db.runAsync(statement, appDatabaseService.createInsertStatementArgs(updateData));
             return result.changes;
-        } finally {
-            await statement.finalizeAsync();
+        } catch (e) {
+            console.log(e);
         }
-        return false;
+        return null;
     }
 
     async deleteProduct(id) {
@@ -54,10 +56,31 @@ class ProductService {
         try {
             await db.runAsync(statement);
             return true;
-        } finally {
-            await statement.finalizeAsync();
+        } catch (e) {
+            console.log(e)
         }
         return false;
+    }
+
+    async exitsWithName(db, name) {
+        const statement = await appDatabaseService.createGetByQuery(appDatabaseService.TABLE_PRODUCT, 'name', name);
+        try {
+            return (await appDatabaseService.getFirst(db, statement) != null);
+        } catch (e) {
+            return false;
+        }
+    }
+
+    async getAllByCategory(categId) {
+        try {
+            const db = await appDatabaseService.getConnection();
+            const query = `SELECT * FROM ${appDatabaseService.TABLE_PRODUCT} WHERE categoryId=${categId}`;
+            return await appDatabaseService.getAll(db, query);
+        } catch (e) {
+            console.log(e);
+        }
+        return []
+
     }
 }
 

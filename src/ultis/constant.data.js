@@ -1,6 +1,7 @@
 import ManageIndexScreen from "../screens/manage/manage.index.screen";
 import AnalyticIndexScreen from "../screens/analytics/analytic.index.screen";
 import ReportIndexScreen from "../screens/report/report.index.screen";
+import AnaliticRoutes from "../screens/analytics/analitic.routes";
 
 export const MAIN_TAB = [
     {
@@ -16,7 +17,7 @@ export const MAIN_TAB = [
     {
         label: "Thu chi",
         routeName: 'analytic_screen',
-        component: AnalyticIndexScreen,
+        component: AnaliticRoutes,
         icon: {
             size: 24,
             name: 'swap-horizontal',

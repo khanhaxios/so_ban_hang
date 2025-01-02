@@ -1,94 +1,82 @@
-import { AppContainer } from "../../components/layout/container.cpn";
-import { observer } from "mobx-react";
-import { Box, Button, HStack, ScrollView, Text, VStack } from "native-base";
-import { useEffect, useState } from "react";
+import {AppContainer} from "../../components/layout/container.cpn";
+import {observer} from "mobx-react";
+import {Button, HStack, ScrollView, Text, VStack} from "native-base";
+import {useState} from "react";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { Dimensions } from "react-native";
-import FilterSection from "../../components/filter/FilterSection.cpn";
+import {Dimensions} from "react-native";
 import ReportSellScreen from "./report.sell.screen";
-import ReportRevenueScreen from "./report.revenue.screen";
 import ReportWareHouseScreen from "./report.warehouse.screen";
 import ReportProfitScreen from "./report.profit.screen";
+import PagerView from "react-native-pager-view";
+import {useNavigation} from "@react-navigation/native";
 
 const screenWidth = Dimensions.get("window").width;
 
-const ReportIndexScreen = ({ navigation, route }) => {
-  const [activeTab, setActiveTab] = useState("Bán hàng");
- 
+const ReportIndexScreen = ({navigation, route}) => {
+    const [activeTab, setActiveTab] = useState(0);
 
-
- 
-  const handleTabChange = (tab) => {
-    setActiveTab(tab); // Cập nhật tab hiện tại khi bấm vào
-  };
-
-  const getTabStyle = (tab) => {
-    return {
-      color: activeTab === tab ? "green" : "black",
-      textDecorationLine: activeTab === tab ? "underline" : "none",
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
     };
-  };
 
-  
-  return (
-    <AppContainer>
-      <ScrollView>
-        {/* Header */}
-        <VStack space={2} px={4} py={2} bg="white">
-          <HStack justifyContent="space-between" alignItems="center">
-            <Button variant="ghost">
-              <Ionicons
-                name={"chevron-back-outline"}
-                color={"black"}
-                size={24}
-              />
-            </Button>
-            <Text bold fontSize={"lg"}>
-              Báo cáo
-            </Text>
-            <Button variant="ghost">
-              <Ionicons
-                name={"alert-circle-outline"}
-                color={"black"}
-                size={24}
-              />
-            </Button>
-          </HStack>
-          <HStack space={4} justifyContent="space-between">
-            <Button variant="ghost" onPress={() => handleTabChange("Bán hàng")} >
-              <Text style={getTabStyle("Bán hàng")} fontSize={"sm"}>
-                Bán hàng
-              </Text>
-            </Button>
-            <Button variant="ghost" onPress={() => handleTabChange("Lãi lỗ")}>
-              <Text style={getTabStyle("Lãi lỗ")} fontSize={"sm"}>
-                Lãi lỗ
-              </Text>
-            </Button>
-            <Button variant="ghost" onPress={() => handleTabChange("Kho hàng")}>
-              <Text style={getTabStyle("Kho hàng")} fontSize={"sm"}>
-                Kho hàng
-              </Text>
-            </Button>
-            <Button variant="ghost" onPress={() => handleTabChange("Thu chi")}>
-              <Text style={getTabStyle("Thu chi")} fontSize={"sm"}>
-                Thu chi
-              </Text>
-            </Button>
-          </HStack>
-        </VStack>
+    const getTabStyle = (tab) => {
+        return {
+            color: activeTab === tab ? "green" : "black",
+            textDecorationLine: activeTab === tab ? "underline" : "none",
+        };
+    };
+    const nav = useNavigation();
 
-        {/* Date Filter */}
-      
-
-        {/* Hiển thị các màn hình dựa trên tab được chọn */}
-        {activeTab === "Bán hàng" && <ReportSellScreen />}
-        {activeTab === "Lãi lỗ" && <ReportProfitScreen />}
-        {activeTab === "Kho hàng" && <ReportWareHouseScreen />}
-        {activeTab === "Thu chi" && <ReportRevenueScreen />}
-      </ScrollView>
-    </AppContainer>
-  );
+    return (
+        <AppContainer>
+            <VStack space={2} px={4} py={2} bg="white">
+                <HStack justifyContent="space-between" alignItems="center">
+                    <Button variant="ghost" onPress={() => nav.goBack()}>
+                        <Ionicons
+                            name={"chevron-back-outline"}
+                            color={"black"}
+                            size={24}
+                        />
+                    </Button>
+                    <Text bold fontSize={"lg"}>
+                        Báo cáo
+                    </Text>
+                    <Button variant="ghost">
+                        <Ionicons
+                            name={"alert-circle-outline"}
+                            color={"black"}
+                            size={24}
+                        />
+                    </Button>
+                </HStack>
+                <HStack space={4} justifyContent="space-between">
+                    <Button variant="ghost" onPress={() => handleTabChange(0)}>
+                        <Text style={getTabStyle(0)} fontSize={"sm"}>
+                            Bán hàng
+                        </Text>
+                    </Button>
+                    <Button variant="ghost" onPress={() => handleTabChange(1)}>
+                        <Text style={getTabStyle(1)} fontSize={"sm"}>
+                            Lãi lỗ
+                        </Text>
+                    </Button>
+                    <Button variant="ghost" onPress={() => handleTabChange(2)}>
+                        <Text style={getTabStyle(2)} fontSize={"sm"}>
+                            Kho hàng
+                        </Text>
+                    </Button>
+                </HStack>
+            </VStack>
+            <PagerView onPageSelected={(e) => {
+                const {position} = e.nativeEvent;
+                setActiveTab(position);
+            }} style={{width: '100%', height: '100%'}} initialPage={0}>
+                <ReportSellScreen/>
+                <ReportProfitScreen/>
+                <ReportWareHouseScreen/>
+            </PagerView>
+        </AppContainer>
+    );
 };
 
 export default observer(ReportIndexScreen);

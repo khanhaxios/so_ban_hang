@@ -1,5 +1,4 @@
 import {Center} from "native-base";
-import {SH, SW} from "../../ultis/helper";
 
 export const HomeHeaderOverlayCpn = () => {
     return (

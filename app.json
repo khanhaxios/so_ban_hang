@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "so_ban_hang",
+    "name": "Sổ bán hàng",
     "slug": "so_ban_hang",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -32,17 +32,17 @@
     },
     "owner": "khanhdaica13122002",
     "expo": {
-    "ios": {
-      "requireFullScreen": true
-    },
-    "plugins": [
-      [
-        "expo-screen-orientation",
-        {
-          "initialOrientation": "DEFAULT"
-        }
+      "ios": {
+        "requireFullScreen": true
+      },
+      "plugins": [
+        [
+          "expo-screen-orientation",
+          {
+            "initialOrientation": "DEFAULT"
+          }
+        ]
       ]
-    ]
-  }
+    }
   }
 }

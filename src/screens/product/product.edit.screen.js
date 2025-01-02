@@ -1,38 +1,29 @@
-import React, {useLayoutEffect, useState} from "react";
-import {
-    Box,
-    Text,
-    ScrollView,
-    HStack,
-    Input,
-    Button,
-    Modal, VStack, Image,
-} from "native-base";
 import {observer} from "mobx-react";
-import {CategoryCreateModel} from "../../components/category/category.create.model";
-import {ProductCreateFormInput} from "../../components/product/product.create.form.input";
 import {AppContainer} from "../../components/layout/container.cpn";
-import {copyImage, formatCurrency, splitQuantity} from "../../ultis/helper";
-import {ActivityIndicator, Alert, FlatList, ImageBackground, Pressable, ToastAndroid} from 'react-native';
-import uploaderBg from '../../res/camera.png'
-import * as ImagePicker from 'expo-image-picker';
-import {categoryService} from "../../services/category.service";
-import {appDatabaseService} from "../../core/app.database";
-import {store} from "../../models/store.model";
+import {ActivityIndicator, ImageBackground, Pressable, ScrollView, ToastAndroid} from "react-native";
+import {Box, Button, HStack, Image, Input, Modal, Text, VStack} from "native-base";
+import React, {useLayoutEffect, useState} from "react";
 import {productService} from "../../services/product.service";
-import {useNavigation} from "@react-navigation/native";
+import {CategoryCreateModel} from "../../components/category/category.create.model";
+import {RenderFormData} from "../sell/sell.createorder.screen";
+import uploaderBg from "../../res/camera.png";
+import {copyImage, formatCurrency, splitQuantity} from "../../ultis/helper";
+import * as ImagePicker from "expo-image-picker";
+import {store} from "../../models/store.model";
+import {appDatabaseService} from "../../core/app.database";
+import {categoryService} from "../../services/category.service";
 
-const CreateProductScreen = () => {
-    const navigation = useNavigation();
-    // State quản lý dữ liệu
+const ProductEditScreen = ({route, navigation}) => {
+    const {id} = route.params;
+
     const initState = {
-        productName: "",
+        name: "",
         price: "",
-        originalPrice: "",
+        originPrice: "",
         isInStock: true,
         quantity: "0"
     }
-    const [formData, setFormData] = useState(initState);
+    const [product, setProduct] = useState(initState);
     const [adding, setAdding] = useState(false);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
@@ -41,29 +32,37 @@ const CreateProductScreen = () => {
     const [newCatData, setNewCatData] = useState({
         name: ''
     })
+    const getProductDetail = async (id) => {
+        const product = await productService.getById(id);
+        product['quantity'] = product.quantity + " " + product.quantityType;
+        setProduct(product);
+    }
 
     const validations = {
-        productName: formData.productName.trim() !== "",
-        price: formData.price.trim() !== "" && !isNaN(formData.price),
-        originalPrice:
-            formData.originalPrice.trim() !== "" && !isNaN(formData.originalPrice),
-        quantity: formData?.quantity.trim() !== "",
+        name: product?.name?.trim() !== "",
+        price: product?.price && !isNaN(product?.price),
+        originPrice:
+            product.originPrice !== "" && !isNaN(product.originPrice),
+        quantity: product?.quantity?.trim() !== "",
     };
     const handleInputChange = (key, value) => {
-        setFormData((prev) => ({...prev, [key]: value}));
+        setProduct((prev) => ({...prev, [key]: value}));
     };
-    const handleComplete = async (redirect = true) => {
+    const handleComplete = async () => {
         try {
             setIsSubmitAttempted(true);
             const isValid = Object.values(validations).every(Boolean);
-            if (!formData?.categoryId) {
+            if (!product?.categoryId) {
                 ToastAndroid.show("Chọn danh mục cho sản phẩm", ToastAndroid.LONG);
                 return;
             }
             // copy image
             if (isValid) {
-                const productImage = await copyImage(imageUploaded);
-                const quantity = splitQuantity(formData.quantity);
+                let productImage = product.image;
+                if (imageUploaded) {
+                    productImage = await copyImage(imageUploaded);
+                }
+                const quantity = splitQuantity(product.quantity);
                 if (quantity?.numberPart === 0) {
                     ToastAndroid.show("Số lượng sản phẩm phải lớn hơn 0", ToastAndroid.LONG);
                     return;
@@ -75,41 +74,19 @@ const CreateProductScreen = () => {
                 setAdding(true)
                 const finalData = {
                     image: productImage,
-                    name: formData.productName,
+                    name: product?.name,
                     quantity: quantity.numberPart,
                     quantityType: quantity.textPart,
-                    originPrice: parseFloat(formData.originalPrice),
-                    price: parseFloat(formData.price),
-                    categoryId: formData.categoryId,
+                    originPrice: parseFloat(product.originPrice),
+                    price: parseFloat(product.price),
+                    categoryId: product.categoryId,
                     storeId: store.currentStore.id,
-                    isSelling: formData.isInStock ? 1 : 0
+                    isSelling: product.isInStock ? 1 : 0
                 };
-                const db = await appDatabaseService.getConnection();
-                // validate
-                const exits = await productService.exitsWithName(db, finalData.name);
-                if (exits) {
-                    ToastAndroid.show("Đã có sản phẩm cùng tên", ToastAndroid.LONG);
-                    setAdding(false);
-                    return;
-                }
-                const insertedId = await productService.insertProduct(db, finalData);
-                // insert to history
-                const historyQuery = {
-                    amount: finalData.originPrice * finalData.quantity,
-                    productId: insertedId,
-                    quantity: finalData.quantity,
-                    createdAt: new Date().getTime(),
-                    updatedAt: new Date().getTime(),
-                }
-                const insertQuery = await appDatabaseService.createInsertStatement(db, 'productsHistory', historyQuery);
-                await insertQuery.executeAsync(appDatabaseService.createInsertStatementArgs(historyQuery));
-                ToastAndroid.show("Đã thêm sản phẩm", ToastAndroid.LONG);
+               const result =  await productService.updateProduct(id, finalData);
+               console.log(result)
+                ToastAndroid.show("Cập nhật thành công", ToastAndroid.LONG);
                 setAdding(false);
-                if (!redirect) {
-                    setFormData(initState);
-                    setImageUploaded(null);
-                    return;
-                }
                 navigation.goBack();
             } else {
                 ToastAndroid.show("Hãy điền đúng thông tin", ToastAndroid.LONG);
@@ -118,48 +95,32 @@ const CreateProductScreen = () => {
             console.log(e)
         }
     };
-
-    const Header = () => {
-        return (
-            <Box
-                bg="white"
-                py={4}
-                px={5}
-                borderBottomWidth={1}
-                borderColor="gray.200"
-            >
-                <Text fontSize="lg" fontWeight="bold">
-                    Tạo sản phẩm
-                </Text>
-            </Box>
-        )
-    }
     const formFields = [
         {
-            name: 'productName',
+            name: 'name',
             placeholder: 'Ví Dụ : Mì Hảo Hảo',
             label: 'Tên Sản Phẩm',
             required: true,
-            validValue: validations.productName,
-            value: formData.productName,
+            validValue: validations?.name,
+            value: product?.name,
         },
         {
             name: 'price',
             placeholder: '0.000',
             label: 'Giá bán',
             required: true,
-            validValue: validations.price,
-            value: formData.price,
+            validValue: validations?.price,
+            value: product?.price,
             keyType: 'numeric',
             formatter: formatCurrency
         },
         {
-            name: 'originalPrice',
+            name: 'originPrice',
             placeholder: '0.000',
             label: 'Giá gốc',
             required: true,
-            validValue: validations.originalPrice,
-            value: formData.originalPrice,
+            validValue: validations?.originPrice,
+            value: product?.originPrice,
             keyType: 'numeric',
             formatter: formatCurrency
         },
@@ -168,8 +129,8 @@ const CreateProductScreen = () => {
             placeholder: '0.000',
             label: 'Số lượng',
             required: true,
-            validValue: validations.quantity,
-            value: formData.quantity,
+            validValue: validations?.quantity,
+            value: product?.quantity,
         },
     ]
 
@@ -184,11 +145,43 @@ const CreateProductScreen = () => {
         }
         setImageUploaded(result.assets[0]);
     }
+    console.log(product.originPrice)
+    useLayoutEffect(() => {
+        getProductDetail(id).then();
+        loadCate().then()
+    }, [])
+
+    const Header = () => {
+        return (
+            <Box
+                bg="white"
+                py={4}
+                px={5}
+                borderBottomWidth={1}
+                borderColor="gray.200"
+            >
+                <Text fontSize="lg" fontWeight="bold">
+                    Chỉnh sửa sản phẩm
+                </Text>
+            </Box>
+        )
+    }
+
     const UploadImageCpn = () => {
+        if (product?.image && !imageUploaded) {
+            return (
+                <Pressable onPress={handleChoseImage}>
+                    <ImageBackground style={{paddingVertical: 8}} source={{uri: product.image}} blurRadius={9}>
+                        <Image width={'100%'} height={250} resizeMode={'contain'}
+                               source={{uri: product.image}}/>
+                    </ImageBackground>
+                </Pressable>
+            )
+        }
         return (
             <Pressable onPress={handleChoseImage}>
                 {imageUploaded ? (
-                    <ImageBackground style={{paddingVertical: 8}} source={{uri: imageUploaded.uri}} blurRadius={9}>
+                    <ImageBackground style={{paddingVertical: 8}} source={{uri: imageUploaded?.uri}} blurRadius={9}>
                         <Image width={'100%'} height={250} resizeMode={'contain'}
                                source={{uri: imageUploaded.uri}}/>
                     </ImageBackground>
@@ -202,6 +195,7 @@ const CreateProductScreen = () => {
             </Pressable>
         )
     }
+
     const handleAddNewCat = async () => {
         try {
             if (newCatData.name.trim() === '') {
@@ -230,36 +224,7 @@ const CreateProductScreen = () => {
         setCategories(result)
     }
     const handleSetCategory = (id) => {
-        setFormData({...formData, categoryId: id})
-    }
-    useLayoutEffect(() => {
-        loadCate().then();
-    }, []);
-
-    async function handleCompleteAndAddMore() {
-        await handleComplete(false);
-    }
-
-    const handleDeleteCategory = async (id) => {
-        Alert.alert("Xác nhận", "Bạn có muốn xóa danh mục này?tất cả các sản phẩm thuộc danh mục này sẽ bị xóa đi", [
-            {
-                text: "Không", style: "default", onPress: () => {
-                }
-            },
-            {
-                text: 'Xóa', style: 'destructive', onPress: async () => {
-                    try {
-                        const db = await appDatabaseService.getConnection();
-                        const query = `delete from categories where id=${id}`;
-                        await db.execAsync(query);
-                        loadCate().then();
-                    } catch (e) {
-                        console.log(e)
-                        ToastAndroid.show("Danh mục chứa sản phẩm không thể xóa", ToastAndroid.LONG);
-                    }
-                }
-            }
-        ])
+        setProduct({...product, categoryId: id})
     }
     return (
         <AppContainer>
@@ -294,20 +259,22 @@ const CreateProductScreen = () => {
                         </HStack>
                     </HStack>
                     <HStack mt={2} alignItems="center" justifyContent="space-between">
-                        <Text>{formData.isInStock ? "Lên kệ" : "Trong kho"}</Text>
+                        <Text>{product.isInStock ? "Lên kệ" : "Trong kho"}</Text>
                     </HStack>
                 </Box>
-                <CategoryCreateModel handleDeleteCategory={handleDeleteCategory} setCategory={handleSetCategory}
+                <CategoryCreateModel selected={product?.categoryId} setCategory={handleSetCategory}
                                      categories={categories}
                                      setOpenModel={setIsCategoryModalOpen}/>
+                {/* Buttons */}
                 <HStack mt={6} px={4} space={3} justifyContent="space-between">
-                    <Button onPress={handleCompleteAndAddMore} disabled={adding} flex={1} colorScheme="gray">
-                        {adding ? <ActivityIndicator size={20} color={'white'}/> : 'Tạo thêm'}
+                    <Button onPress={() => navigation.goBack()} disabled={adding} flex={1} colorScheme="gray">
+                        {adding ? <ActivityIndicator size={20} color={'white'}/> : 'Trở về'}
                     </Button>
                     <Button disabled={adding} flex={1} colorScheme="green" onPress={handleComplete}>
-                        {adding ? <ActivityIndicator size={20} color={'white'}/> : 'Hoàn tất'}
+                        {adding ? <ActivityIndicator size={20} color={'white'}/> : 'Cập nhật'}
                     </Button>
                 </HStack>
+                {/* Category Modal */}
                 <Modal
                     isOpen={isCategoryModalOpen}
                     onClose={() => setIsCategoryModalOpen(false)}
@@ -333,24 +300,7 @@ const CreateProductScreen = () => {
                 </Modal>
             </ScrollView>
         </AppContainer>
-    );
-};
-
-export const RenderFormData = ({formFields, handleInputChange, isSubmitAttempted}) => {
-    return (
-        <FlatList renderItem={({item}) => <ProductCreateFormInput
-            name={item.name}
-            placeholder={item.placeholder}
-            label={item.label}
-            formatter={item?.formatter}
-            required={item.required}
-            value={item.value}
-            validValue={item.validValue}
-            handleSetChange={handleInputChange}
-            keyType={item?.keyType}
-            isAttempted={isSubmitAttempted}
-        />} data={formFields}/>
     )
-}
 
-export default observer(CreateProductScreen);
+}
+export default observer(ProductEditScreen);
