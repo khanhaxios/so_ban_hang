@@ -2,9 +2,14 @@ import * as SQLite from 'expo-sqlite';
 import {ToastAndroid} from "react-native";
 import {storeService} from "../services/store.service";
 
+export const types = ['Chưa phân loại', 'Trả lãi', 'Sinh hoạt gia đình', 'Khoản chi khác', 'Quảng cáo', 'Vận chuyển', 'Giao hàng', 'Mặt bằng', 'Thuê nhà', 'Cá nhân', 'Công nhân viên', 'Thanh toán nợ', 'Thuế phí', 'Ăn uống', 'Thuê nhà', 'Quản lý,bán hàng', 'Điện,nước,internet', 'Đóng gói hàng hóa', 'Mua sắm',
+    'Tặng,cho', 'Nguyên vật liệu', 'Mặt bằng', 'Nhập hàng', 'Thiết bị dụng cụ', 'Lương,thưởng'];
+export const moneySources = ['Chưa phân loại', 'Tiền mặt', 'Ví điện tử', 'Ngân hàng'];
+
 class AppDatabaseService {
     DB_NAME = "kan_store_management.db";
     DB = null;
+
     TABLE_STORE = "stores";
     TABLE_PRODUCT = "products";
     TABLE_CATEGORY = "categories";
@@ -172,15 +177,11 @@ class AppDatabaseService {
                 await db.runAsync(initStoreQuery);
             }
 
-            const types = ['Chưa phân loại', 'Trả lãi', 'Sinh hoạt gia đình', 'Khoản chi khác', 'Quảng cáo', 'Vận chuyển', 'Giao hàng', 'Mặt bằng', 'Thuê nhà', 'Cá nhân', 'Công nhân viên', 'Thanh toán nợ', 'Thuế phí', 'Ăn uống', 'Thuê nhà', 'Quản lý,bán hàng', 'Điện,nước,internet', 'Đóng gói hàng hóa', 'Mua sắm',
-                'Tặng,cho', 'Nguyên vật liệu', 'Mặt bằng', 'Nhập hàng', 'Thiết bị dụng cụ', 'Lương,thưởng']
-
             for (let type of types) {
                 const query = `INSERT OR IGNORE INTO incomeType (name) VALUES ('${type}')`;
                 await db.execAsync(query);
             }
-            const moneySource = ['Chưa phân loại', 'Tiền mặt', 'Ví điện tử', 'Ngân hàng'];
-            for (let string of moneySource) {
+            for (let string of moneySources) {
                 const query = `INSERT OR IGNORE INTO moneySource (name,cost) VALUES ('${string}',0)`;
                 await db.execAsync(query);
             }

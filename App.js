@@ -17,7 +17,7 @@ export default function App() {
         if (initialState) return;
         setInitialState(true);
         await delaySync(1)
-        await appDatabaseService.createDatabase(true);
+        await appDatabaseService.createDatabase(false);
     }
     useLayoutEffect(() => {
         initDatabase().then(async () => {
