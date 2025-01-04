@@ -4,7 +4,7 @@ import {storeService} from "../services/store.service";
 
 export const types = ['Chưa phân loại', 'Trả lãi', 'Sinh hoạt gia đình', 'Khoản chi khác', 'Quảng cáo', 'Vận chuyển', 'Giao hàng', 'Mặt bằng', 'Thuê nhà', 'Cá nhân', 'Công nhân viên', 'Thanh toán nợ', 'Thuế phí', 'Ăn uống', 'Thuê nhà', 'Quản lý,bán hàng', 'Điện,nước,internet', 'Đóng gói hàng hóa', 'Mua sắm',
     'Tặng,cho', 'Nguyên vật liệu', 'Mặt bằng', 'Nhập hàng', 'Thiết bị dụng cụ', 'Lương,thưởng'];
-export const moneySources = ['Chưa phân loại', 'Tiền mặt', 'Ví điện tử', 'Ngân hàng'];
+export const moneySources = ['Chưa phân loại'];
 
 class AppDatabaseService {
     DB_NAME = "kan_store_management.db";
@@ -19,7 +19,7 @@ class AppDatabaseService {
     }
 
     async clearDatabase() {
-        const tables = ['inout']; // Replace with your table names
+        const tables = [ 'products',  'orders', 'ordersDetail']; // Replace with your table names
         const db = await SQLite.openDatabaseAsync("kan_store_management.db");
         for (const table of tables) {
             await db.execAsync(`DROP TABLE IF EXISTS ${table};`);
@@ -74,7 +74,7 @@ class AppDatabaseService {
                     image TEXT,
                     name TEXT,
                     price REAL,
-                    sold REAL,
+                    sold REAL DEFAULT 0,
                     desc TEXT,
                     originPrice REAL,
                     discount REAL,
@@ -151,7 +151,7 @@ class AppDatabaseService {
                         moneySourceId INTEGER,
                         note TEXT,
                         image TEXT,
-                        type INTEGER DEFAULT 0,
+                        type INTEGER DEFAULT 0, 
                         createdAt REAL,
                         cost REAL DEFAULT 0,
                     FOREIGN KEY (incomeTypeId) REFERENCES incomeType(id),

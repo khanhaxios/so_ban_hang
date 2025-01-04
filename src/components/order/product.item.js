@@ -2,6 +2,7 @@ import React, {memo} from "react";
 import {Pressable} from "react-native";
 import {Image, Text, VStack} from "native-base";
 import {formatCurrency} from "../../ultis/helper";
+import empty from '../../res/fast-food.png';
 
 export const ProductItem = memo(({product, addToCart}) => {
     const inStock = product.quantity > 0;
@@ -24,11 +25,12 @@ export const ProductItem = memo(({product, addToCart}) => {
                 alignItems="center"
                 backgroundColor={'white'}
             >
+
                 <Image
-                    style={{borderRadius: 8}}
-                    source={{uri: product?.image}}
+                    style={{borderRadius: 8, resizeMode: product.image ? 'cover' : 'contain'}}
+                    source={product?.image ? {uri: product?.image} : empty}
                     alt={product?.name}
-                    width="100%"
+                    width={product?.image ? '100%' : "50%"}
                     height={32}
                 />
                 <Text fontSize={16} fontWeight={'bold'} numberOfLines={1} ellipsizeMode="tail">

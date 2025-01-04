@@ -16,7 +16,7 @@ import {
 import Ionicons from "react-native-vector-icons/Ionicons";
 import {useNavigation} from "@react-navigation/native";
 import React, {useLayoutEffect, useState} from "react";
-import {formatCurrency, getRandomSubset, SH, stringGen} from "../../ultis/helper";
+import {copyImage, formatCurrency, getRandomSubset, SH, stringGen} from "../../ultis/helper";
 import {BottomSheet} from "../../components/layout/bottomsheet";
 import {useAnimatedStyle, useSharedValue, withTiming} from "react-native-reanimated";
 import {Alert, FlatList, Image, TextInput, ToastAndroid} from "react-native";
@@ -81,11 +81,35 @@ const AnalyticCreateOutGoing = () => {
         setFormData({...formData, [name]: value});
     }
     const isValidForm = (data) => {
-
+        if (!data.cost || isNaN(data.cost) || data.cost <= 0) {
+            ToastAndroid.show("Số tiền sai đinh dạng", ToastAndroid.LONG);
+            return false;
+        }
+        return true;
     }
     const handleComplete = async () => {
         try {
+            if (isValidForm(formData)) {
+                const uri = await copyImage(formData.image);
+                const finalData = {
+                    note: formData.note || '',
+                    createdAt: new Date(formData.createdAt).getTime() || new Date().getTime(),
+                    incomeTypeId: formData.incomeType.id === -1 ? 1 : formData.incomeType.id,
+                    moneySourceId: formData.moneySource.id === -1 ? 1 : formData.moneySource.id,
+                    image: uri || null,
+                    type: 0,
+                    cost: formData.cost || 0
+                }
 
+                const db = await appDatabaseService.getConnection();
+                const stm = await appDatabaseService.createInsertStatement(db, "inout", finalData);
+                // get cost
+                await stm.executeAsync(appDatabaseService.createInsertStatementArgs(finalData));
+
+                await db.execAsync(`UPDATE moneySource SET cost = cost - ${finalData.cost} WHERE id = ${finalData.moneySourceId}`);
+                ToastAndroid.show("Thêm khoản chi thành công", ToastAndroid.LONG);
+                nav.goBack();
+            }
         } catch (e) {
             console.log(e);
         }
@@ -390,7 +414,21 @@ const AnalyticCreateOutGoing = () => {
                                     selected={formData?.moneySource}
                                     label={"Nguồn tiền"}
                                     onPress={handleChoseMoneySource}/>
+
                     </VStack>
+                    <HStack justifyContent={'flex-end'} mt={2} space={6} width={SH / 2}
+                            left={0}>
+                        <Pressable onPress={() => nav.goBack()}>
+                            <Center backgroundColor={'gray.200'} px={12} py={3} shadow={1} borderRadius={6}>
+                                <Text>Quay về</Text>
+                            </Center>
+                        </Pressable>
+                        <Pressable onPress={handleComplete}>
+                            <Center backgroundColor={'green.500'} px={12} py={3} shadow={1} borderRadius={6}>
+                                <Text color={'white'}>Tạo khoản chi</Text>
+                            </Center>
+                        </Pressable>
+                    </HStack>
                 </VStack>
                 <VStack height={120} width={'48%'} space={2}>
                     <FormInput
@@ -436,6 +474,7 @@ const AnalyticCreateOutGoing = () => {
                             display="default"
                             onChange={onChange}/>
         )}
+
     </AppContainer>
 }
 export const AddNewTypeModal = ({modalVisible, setModalVisible, handleSuccess}) => {

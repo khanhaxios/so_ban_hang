@@ -13,7 +13,7 @@ import {MaterialIcons} from "react-native-vector-icons";
 import {Dimensions, FlatList, TouchableOpacity} from "react-native";
 import {LineChart} from "react-native-chart-kit";
 import {product} from "../../models/product.model";
-import {formatCurrency, stringGen} from "../../ultis/helper";
+import {convertNumberToCurrency, formatCurrency, stringGen} from "../../ultis/helper";
 import {useNavigation} from "@react-navigation/native";
 import {appDatabaseService} from "../../core/app.database";
 
@@ -21,25 +21,6 @@ function ReportWareHouseScreen() {
     const nav = useNavigation();
     const [selectedFilter, setSelectedFilter] = useState("overview");
     const [insertProductHis, setInsertProductHis] = useState([]);
-    // Fake data for warehouse products
-
-    // Fake data for chart
-    const fakeChartData = {
-        labels: [
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-        ],
-        datasets: [
-            {
-                data: [
-                    50000, 60000, 70000, 55000, 80000, 90000, 85000, 95000, 100000, 120000, 110000, 130000,
-                ],
-                strokeWidth: 2,
-                color: (opacity = 1) => `rgba(34, 202, 236, ${opacity})`,
-            },
-        ],
-    };
-
-    // Function to switch between tabs
     const switchFilter = (filter) => {
         setSelectedFilter(filter);
     };
@@ -327,6 +308,7 @@ function ReportWareHouseScreen() {
                             </Text>
                         </HStack>
                         <LineChart
+                            formatYLabel={(t) => convertNumberToCurrency(t).val}
                             data={chartData}
                             width={Dimensions.get("window").width - 40}
                             height={250}

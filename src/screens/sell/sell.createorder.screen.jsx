@@ -68,10 +68,11 @@ const CreateProductScreen = () => {
                     ToastAndroid.show("Số lượng sản phẩm phải lớn hơn 0", ToastAndroid.LONG);
                     return;
                 }
-                if (!quantity?.textPart) {
-                    ToastAndroid.show("Số lượng sản phẩm phải có định danh : 1 cái , 1 hộp , 1 vỉ", ToastAndroid.LONG);
-                    return;
-                }
+                // console.log(quantity);
+                // if (!quantity?.textPart) {
+                //     ToastAndroid.show("Số lượng sản phẩm phải có định danh : 1 cái , 1 hộp , 1 vỉ", ToastAndroid.LONG);
+                //     return;
+                // }
                 setAdding(true)
                 const finalData = {
                     image: productImage,
@@ -281,7 +282,7 @@ const CreateProductScreen = () => {
                                 variant="outline"
                                 onPress={() => handleInputChange("isInStock", true)}
                             >
-                                Lên Kệ
+                                Còn hàng
                             </Button>
                             <Button
                                 size="sm"
@@ -289,12 +290,12 @@ const CreateProductScreen = () => {
                                 variant="outline"
                                 onPress={() => handleInputChange("isInStock", false)}
                             >
-                                Trong kho
+                                Hết hàng
                             </Button>
                         </HStack>
                     </HStack>
                     <HStack mt={2} alignItems="center" justifyContent="space-between">
-                        <Text>{formData.isInStock ? "Lên kệ" : "Trong kho"}</Text>
+                        <Text>{formData.isInStock ? "Còn hàng" : "Hết hàng"}</Text>
                     </HStack>
                 </Box>
                 <CategoryCreateModel handleDeleteCategory={handleDeleteCategory} setCategory={handleSetCategory}

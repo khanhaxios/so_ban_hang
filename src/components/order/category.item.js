@@ -6,7 +6,7 @@ export const CategoryItem = ({item, setCategory, selectedCategory}) => {
         <Button
             my={1}
             onPress={() => setCategory(item?.id)}
-            backgroundColor={selectedCategory === item?.id ? "#075ae0" : "white"}
+            backgroundColor={selectedCategory === item?.id ? "#04c454" : "white"}
             _hover={{
                 bg: "white",
                 borderColor: "#075ae0",

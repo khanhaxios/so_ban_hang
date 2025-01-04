@@ -1,6 +1,6 @@
 import {observer} from "mobx-react";
 import {AppContainer} from "../../components/layout/container.cpn";
-import {ActivityIndicator, ImageBackground, Pressable, ScrollView, ToastAndroid} from "react-native";
+import {ActivityIndicator, Alert, ImageBackground, Pressable, ScrollView, ToastAndroid} from "react-native";
 import {Box, Button, HStack, Image, Input, Modal, Text, VStack} from "native-base";
 import React, {useLayoutEffect, useState} from "react";
 import {productService} from "../../services/product.service";
@@ -12,6 +12,7 @@ import * as ImagePicker from "expo-image-picker";
 import {store} from "../../models/store.model";
 import {appDatabaseService} from "../../core/app.database";
 import {categoryService} from "../../services/category.service";
+import {product as productModel} from '../../models/product.model'
 
 const ProductEditScreen = ({route, navigation}) => {
     const {id} = route.params;
@@ -67,10 +68,10 @@ const ProductEditScreen = ({route, navigation}) => {
                     ToastAndroid.show("Số lượng sản phẩm phải lớn hơn 0", ToastAndroid.LONG);
                     return;
                 }
-                if (!quantity?.textPart) {
-                    ToastAndroid.show("Số lượng sản phẩm phải có định danh : 1 cái , 1 hộp , 1 vỉ", ToastAndroid.LONG);
-                    return;
-                }
+                // if (!quantity?.textPart) {
+                //     ToastAndroid.show("Số lượng sản phẩm phải có định danh : 1 cái , 1 hộp , 1 vỉ", ToastAndroid.LONG);
+                //     return;
+                // }
                 setAdding(true)
                 const finalData = {
                     image: productImage,
@@ -81,10 +82,10 @@ const ProductEditScreen = ({route, navigation}) => {
                     price: parseFloat(product.price),
                     categoryId: product.categoryId,
                     storeId: store.currentStore.id,
-                    isSelling: product.isInStock ? 1 : 0
+                    isSelling: product.isSelling ? 1 : 0
                 };
-               const result =  await productService.updateProduct(id, finalData);
-               console.log(result)
+                const result = await productService.updateProduct(id, finalData);
+                console.log(result)
                 ToastAndroid.show("Cập nhật thành công", ToastAndroid.LONG);
                 setAdding(false);
                 navigation.goBack();
@@ -145,7 +146,6 @@ const ProductEditScreen = ({route, navigation}) => {
         }
         setImageUploaded(result.assets[0]);
     }
-    console.log(product.originPrice)
     useLayoutEffect(() => {
         getProductDetail(id).then();
         loadCate().then()
@@ -226,6 +226,52 @@ const ProductEditScreen = ({route, navigation}) => {
     const handleSetCategory = (id) => {
         setProduct({...product, categoryId: id})
     }
+    const handleDeleteCategory = async (id) => {
+        Alert.alert("Xác nhận", "Bạn có muốn xóa danh mục này?tất cả các sản phẩm thuộc danh mục này sẽ bị xóa đi", [
+            {
+                text: "Không", style: "default", onPress: () => {
+                }
+            },
+            {
+                text: 'Xóa', style: 'destructive', onPress: async () => {
+                    try {
+                        const db = await appDatabaseService.getConnection();
+                        const query = `delete from categories where id=${id}`;
+                        await db.execAsync(query);
+                        loadCate().then();
+                    } catch (e) {
+                        console.log(e)
+                        ToastAndroid.show("Danh mục chứa sản phẩm không thể xóa", ToastAndroid.LONG);
+                    }
+                }
+            }
+        ])
+    }
+
+    const handleDeleteProduct = async (id) => {
+        Alert.alert("Xác nhận", "Bạn có chắc muốn xóa sản phẩm này?", [
+            {
+                style: 'default', text: 'Không', onPress: () => {
+                }
+            },
+            {
+                style: 'cancel', text: 'Xóa', onPress: async () => {
+                    try {
+                        const db = await appDatabaseService.getConnection();
+                        await db.runAsync(`DELETE from productsHistory where productId=${id}`);
+                        await db.runAsync("DELETE FROM products WHERE id = " + id);
+                        await productModel.loadAll();
+                        ToastAndroid.show("Đã xóa", ToastAndroid.LONG);
+                        navigation.goBack();
+                    } catch (e) {
+                        ToastAndroid.show("Sản phẩm đang chứa đơn hàng không thể xóa", ToastAndroid.LONG);
+                        console.log(e)
+                    }
+                }
+            }
+        ])
+    }
+
     return (
         <AppContainer>
             <ScrollView flex={1} bg="#f9f9f9">
@@ -244,31 +290,33 @@ const ProductEditScreen = ({route, navigation}) => {
                                 size="sm"
                                 colorScheme="green"
                                 variant="outline"
-                                onPress={() => handleInputChange("isInStock", true)}
+                                onPress={() => handleInputChange("isSelling", true)}
                             >
-                                Lên Kệ
+                                Còn hàng
                             </Button>
                             <Button
                                 size="sm"
                                 colorScheme="red"
                                 variant="outline"
-                                onPress={() => handleInputChange("isInStock", false)}
+                                onPress={() => handleInputChange("isSelling", false)}
                             >
-                                Trong kho
+                                Hết hàng
                             </Button>
                         </HStack>
                     </HStack>
                     <HStack mt={2} alignItems="center" justifyContent="space-between">
-                        <Text>{product.isInStock ? "Lên kệ" : "Trong kho"}</Text>
+                        <Text>{product.isSelling ? "Còn hàng" : "Hết hàng"}</Text>
                     </HStack>
                 </Box>
-                <CategoryCreateModel selected={product?.categoryId} setCategory={handleSetCategory}
+                <CategoryCreateModel handleDeleteCategory={handleDeleteCategory} selected={product?.categoryId}
+                                     setCategory={handleSetCategory}
                                      categories={categories}
                                      setOpenModel={setIsCategoryModalOpen}/>
                 {/* Buttons */}
                 <HStack mt={6} px={4} space={3} justifyContent="space-between">
-                    <Button onPress={() => navigation.goBack()} disabled={adding} flex={1} colorScheme="gray">
-                        {adding ? <ActivityIndicator size={20} color={'white'}/> : 'Trở về'}
+                    <Button onPress={() => handleDeleteProduct(product.id)} disabled={adding} flex={1}
+                            colorScheme="gray">
+                        {adding ? <ActivityIndicator size={20} color={'white'}/> : 'Xóa'}
                     </Button>
                     <Button disabled={adding} flex={1} colorScheme="green" onPress={handleComplete}>
                         {adding ? <ActivityIndicator size={20} color={'white'}/> : 'Cập nhật'}

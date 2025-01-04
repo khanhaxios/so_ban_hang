@@ -19,13 +19,13 @@ export const convertNumberToCurrency = (number) => {
 };
 
 export function getDayOfWeek(unixTimestamp) {
-    const date = new Date(unixTimestamp * 1000); // Convert seconds to milliseconds
+    const date = new Date(unixTimestamp); // Convert seconds to milliseconds
     const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
     return days[date.getDay()];
 }
 
 export function formatDateByMonth(unixTimestamp) {
-    const date = new Date(unixTimestamp * 1000); // Convert seconds to milliseconds
+    const date = new Date(unixTimestamp); // Convert seconds to milliseconds
     const month = date.getMonth() + 1; // getMonth() is zero-based, so add 1
     const day = date.getDate();
 
@@ -60,10 +60,12 @@ export const formatCurrency = (amount) => {
 };
 export const copyImage = async (imageUploaded) => {
     try {
-        const fileName = imageUploaded.uri.split('/').pop();
+        if (!imageUploaded) return null;
+        const uri = imageUploaded?.uri || imageUploaded;
+        const fileName = uri.split('/').pop();
         const destinationPath = `${FileSystem.documentDirectory}${fileName}`;
         await FileSystem.copyAsync({
-            from: imageUploaded.uri,
+            from: uri,
             to: destinationPath,
         });
         return destinationPath;

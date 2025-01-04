@@ -42,7 +42,8 @@ class OrderModel {
                 newOrder.details[i].orderId = result.lastInsertRowId;
                 const s = await appDatabaseService.createInsertStatement(db, 'ordersDetail', newOrder.details[i]);
                 await s.executeAsync(appDatabaseService.createInsertStatementArgs(newOrder.details[i]));
-                await db.execAsync(`UPDATE products SET sold = sold +  ${newOrder.details[i].quantity} WHERE id = ${newOrder.details[i].productId}`);
+                await db.execAsync(`UPDATE products SET sold = sold + ${newOrder.details[i].quantity} WHERE id = ${newOrder.details[i].productId}`);
+                await db.execAsync(`UPDATE products SET quantity = quantity - ${newOrder.details[i].quantity} WHERE id = ${newOrder.details[i].productId}`);
             }
             return result.lastInsertRowId;
         } catch (e) {

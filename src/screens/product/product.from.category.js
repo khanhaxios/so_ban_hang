@@ -9,13 +9,14 @@ import {product} from "../../models/product.model";
 import {ProductItem} from "../../components/product/product.item";
 import {delaySync, SH, SW} from "../../ultis/helper";
 import {productService} from "../../services/product.service";
+import {useIsFocused} from "@react-navigation/native";
 
 const ProductFromCategory = ({handleIsSelling, handleDelete, handleEdit}) => {
     const [categories, setCategories] = useState([]);
     const [productByCategory, setProductByCategory] = useState([]);
     const cached = useMemo(() => categories, [categories]);
     const [activeCategory, setActiveCategory] = useState(-1);
-
+    const isFocused = useIsFocused();
     const [loading, setLoading] = useState(false);
     const fetchAllCategory = async () => {
         const db = await appDatabaseService.getConnection();
@@ -32,7 +33,7 @@ const ProductFromCategory = ({handleIsSelling, handleDelete, handleEdit}) => {
     }
     useLayoutEffect(() => {
         fetchAllCategory().then();
-    }, []);
+    }, [isFocused]);
 
     useLayoutEffect(() => {
         if (categories.length > 0) {
@@ -77,22 +78,23 @@ const ProductFromCategory = ({handleIsSelling, handleDelete, handleEdit}) => {
             </Center>
         )
     }
+
     return (
-        <HStack width={'100%'} justifyContent={'center'} alignItems={'center'}>
+        <HStack width={'100%'}  justifyContent={'center'} alignItems={'center'}>
             <FlatList style={{flex: 1}} showsVerticalScrollIndicator={false} contentContainerStyle={{
-                paddingHorizontal: 20,
-                minHeight: '100%'
+                minHeight: '100%',
+                paddingLeft:20,
+                width: '100%'
             }} data={cached} renderItem={({item}) => <CategoryItem item={item}/>}/>
             {loading ? <Center flex={2}>
                 <ActivityIndicator size={30} color={'black'}/>
             </Center> : (
-                <FlatList style={{width: SH / 2.87}} showsVerticalScrollIndicator={false}
+                <FlatList style={{width: SH / 1.5}} numColumns={2} showsVerticalScrollIndicator={false}
                           ListEmptyComponent={<ProductEmpty/>}
                           contentContainerStyle={{
-                              paddingHorizontal: 20,
                               minHeight: '100%'
                           }} data={productByCategory}
-                          renderItem={({item}) => <ProductItem splitted={false} handleDelete={handleDelete}
+                          renderItem={({item}) => <ProductItem splitted={true} handleDelete={handleDelete}
                                                                handleSetIsSelling={handleIsSelling}
                                                                setOpenModel={handleEdit}
                                                                product={item}/>}/>

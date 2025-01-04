@@ -5,7 +5,6 @@ import {stringGen} from "../../ultis/helper";
 
 export const CategoryCreateModel = ({setOpenModel, categories, setCategory, selected = null, handleDeleteCategory}) => {
     const [selectedId, setSelectedId] = useState();
-
     const handleSelectCategory = (categoryId) => {
         setCategory(categoryId);
         setSelectedId(categoryId);
@@ -13,8 +12,9 @@ export const CategoryCreateModel = ({setOpenModel, categories, setCategory, sele
     useLayoutEffect(() => {
         if (selected != null) setSelectedId(selected);
     }, []);
+
     const CategoryItem = memo(({item}) => {
-        const active = selectedId == item.id;
+        const active = selectedId === item.id;
         return (
             <Pressable onLongPress={() => handleDeleteCategory(item.id)} onPress={() => {
                 handleSelectCategory(item.id)

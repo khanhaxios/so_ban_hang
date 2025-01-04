@@ -27,23 +27,22 @@ const CreateOrderScreen = ({route, navigation}) => {
     }
     const Header = () => {
         return (
-            <HStack py={4} px={4} alignItems="center" justifyContent="space-between">
-                <HStack justifyContent={"space-between"} flex={2}>
-                    <HStack space={6} ml={4} alignItems={'center'}>
-                        <Text color="black" fontSize="lg" ml={2}>
-                            Tạo đơn
-                        </Text>
-                        <HStack marginLeft={100} width={'62%'} borderWidth={1} borderRadius={4} px={3} py={2} space={2}
-                                alignItems={'center'} justifyContent={'start'}>
-                            <Ionicons name={'search'} size={20} color={'black'}/>
-                            <TextInput
-                                style={{width: '90%'}}
-                                onChangeText={(t) => cartModel.searchProduct(t)}
-                                placeholder={'Tìm kiếm sản phẩm'}
-                            />
-                        </HStack>
-                    </HStack>
-
+            <HStack width={'100%'} py={4} px={4} alignItems="center" justifyContent="space-between">
+                <HStack width={'15%'}>
+                    <Text color="black" fontSize="lg" ml={2}>
+                        Tạo đơn
+                    </Text>
+                </HStack>
+                <HStack width={'59%'} borderWidth={1} borderColor={'gray.300'} borderRadius={4} px={3} mx={4} py={2} space={2}
+                        alignItems={'center'} justifyContent={'start'}>
+                    <Ionicons name={'search'} size={20} color={'gray'}/>
+                    <TextInput
+                        style={{width: '90%'}}
+                        onChangeText={(t) => cartModel.searchProduct(t)}
+                        placeholder={'Tìm kiếm sản phẩm'}
+                    />
+                </HStack>
+                <HStack style={{width: '25%'}} px={4} justifyContent={'flex-end'}>
                     <Pressable onPress={handleGoListScreen}>
                         <HStack borderWidth={1} borderRadius={4} px={3} py={2} borderColor={'blue.500'}
                                 alignItems={'center'} space={1}>
@@ -51,6 +50,7 @@ const CreateOrderScreen = ({route, navigation}) => {
                         </HStack>
                     </Pressable>
                 </HStack>
+
             </HStack>
         )
     }
@@ -101,11 +101,15 @@ const CreateOrderScreen = ({route, navigation}) => {
         return (
             <Box flex={1} bg="white">
                 <HStack flex={1} bg="#f2f2f2" px={2}>
-                    <CategoryRender/>
-                    <VStack width="48%" space={4} px={2}>
+                    <Box width={'15%'}>
+                        <CategoryRender/>
+                    </Box>
+                    <VStack width="60%" space={4} px={2}>
                         <ProductRender/>
                     </VStack>
-                    <CartRender/>
+                    <Box width={'25%'}>
+                        <CartRender/>
+                    </Box>
                 </HStack>
             </Box>
         )

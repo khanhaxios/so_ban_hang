@@ -5,7 +5,7 @@ import React, {useEffect, useLayoutEffect, useState} from "react";
 import FilterSection from "../../components/filter/FilterSection.cpn";
 import {appDatabaseService} from "../../core/app.database";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import {delaySync, formatCurrency, SH} from "../../ultis/helper";
+import {convertNumberToCurrency, delaySync, formatCurrency, SH} from "../../ultis/helper";
 
 const screenWidth = Dimensions.get("window").width;
 export const chartData = {
@@ -304,6 +304,7 @@ function ReportSellScreen() {
                 </Text>
                 <Box px={4} py={2} mt={2} bg="white">
                     <LineChart
+                        formatYLabel={(t) => convertNumberToCurrency(t).val}
                         data={chartsData}
                         width={SH}
                         height={250}

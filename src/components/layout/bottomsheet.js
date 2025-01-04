@@ -11,7 +11,7 @@ export const BottomSheet = (props) => {
 }
 const styles = StyleSheet.create({
     container: {
-        width: SH / 2.5,
+        width: '40%',
         position: 'absolute',
         top: 0,
         zIndex: 10,

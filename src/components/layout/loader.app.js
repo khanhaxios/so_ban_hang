@@ -5,7 +5,7 @@ export const LoaderApp = () => {
     return (
         <View style={styles.container}>
             <Image style={styles.loader} source={loader}/>
-            <ActivityIndicator size={30} color={'black'}/>
+            <ActivityIndicator size={40} color={'black'}/>
         </View>
     )
 }
@@ -21,6 +21,8 @@ const styles = StyleSheet.create({
     },
     loader: {
         width: '50%',
+        resizeMode: 'contain',
+        marginBottom: 30,
         height: '50%'
     }
 })

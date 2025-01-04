@@ -1,46 +1,15 @@
 import {useRef, useState} from "react";
-import {Animated, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Pressable, StyleSheet, TouchableOpacity, View} from "react-native";
+import Animated, {useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated';
+import {VStack} from "native-base";
 
-export const Collapsible = ({Header, children}) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const animationHeight = useRef(new Animated.Value(0)).current;
-    const [contentHeight, setContentHeight] = useState(0);
-
-    const toggleExpand = () => {
-        if (isExpanded) {
-            // Collapse
-            Animated.timing(animationHeight, {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: false,
-            }).start(() => setIsExpanded(false));
-        } else {
-            // Expand
-            setIsExpanded(true);
-            Animated.timing(animationHeight, {
-                toValue: contentHeight,
-                duration: 300,
-                useNativeDriver: false,
-            }).start();
-        }
-    };
-
+export const Collapsible = (props) => {
+    const Header = props.Header;
     return (
         <View style={styles.container}>
-            {/* Header */}
-            <TouchableOpacity onPress={toggleExpand} style={styles.header}>
+            <Pressable onPress={props?.handlePress} style={styles.header}>
                 <Header/>
-            </TouchableOpacity>
-
-            {/* Content */}
-            <Animated.View style={[styles.contentContainer, {height: animationHeight}]}>
-                <View
-                    style={styles.hiddenContent}
-                    onLayout={(event) => setContentHeight(event.nativeEvent.layout.height)}
-                >
-                    {children}
-                </View>
-            </Animated.View>
+            </Pressable>
         </View>
     );
 }
@@ -53,16 +22,17 @@ const styles = StyleSheet.create({
         padding: 20,
     },
     container: {
-        width: '100%',
+        marginHorizontal: 12,
+        width: '48%',
         marginBottom: 10,
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: '#f5f6f7',
         borderRadius: 8,
         overflow: 'hidden',
     },
     header: {
-        backgroundColor: '#007BFF',
-        padding: 15,
+        backgroundColor: '#f5f6f7',
+        padding: 12,
     },
     headerText: {
         color: 'white',
